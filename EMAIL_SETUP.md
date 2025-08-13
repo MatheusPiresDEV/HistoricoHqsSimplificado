@@ -31,7 +31,7 @@ Todas as configurações foram aplicadas com sucesso:
 ```javascript
 const EMAIL_CONFIG = {
     service_id: 'service_l9pr7ee', // ✅ Configurado
-    template_id: 'template_s9nortx', // ✅ Configurado
+    template_id: 'template_s9nortx', // ✅ Configurado t
     public_key: 'H1o6cMMb_pNd88i_2', // ✅ Configurado
     destination_email: 'matheusgustavodasilvapires@gmail.com'
 };

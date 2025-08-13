@@ -109,7 +109,7 @@ class PasswordModal {
             // Send email using EmailJS
             const response = await emailjs.send(
                 'service_l9pr7ee',
-                'template_s9nortx',
+                'template_m26vykn',
                 templateParams,
                 'H1o6cMMb_pNd88i_2'
             );

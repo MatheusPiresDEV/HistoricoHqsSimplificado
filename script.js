@@ -31,6 +31,30 @@ function setupEventListeners() {
   ['qtdHqs', 'hqsLidas', 'hqsEmAndamento', 'qtdLivros', 'livrosLidos', 'livrosEmAndamento'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateDisplay);
   });
+
+  // Email buttons
+  const enviarEmailBtn = document.getElementById('enviarEmailBtn');
+  const enviarEmailBtn2 = document.getElementById('enviarEmailBtn2');
+  
+  if (enviarEmailBtn) {
+    enviarEmailBtn.addEventListener('click', handleSendEmail);
+  }
+  
+  if (enviarEmailBtn2) {
+    enviarEmailBtn2.addEventListener('click', handleSendEmail);
+  }
+
+  // Download buttons
+  const downloadReportBtn = document.getElementById('downloadReportBtn');
+  const downloadReportBtn2 = document.getElementById('downloadReportBtn2');
+  
+  if (downloadReportBtn) {
+    downloadReportBtn.addEventListener('click', handleDownloadReport);
+  }
+  
+  if (downloadReportBtn2) {
+    downloadReportBtn2.addEventListener('click', handleDownloadReport);
+  }
 }
 
 // Smart calculation function
@@ -485,6 +509,109 @@ function showMessage(text, type = 'sucesso') {
   setTimeout(() => {
     messageDiv.style.display = 'none';
   }, 3000);
+}
+
+// Handle email sending
+function handleSendEmail() {
+    try {
+        // Check if there's data to send
+        const savedData = localStorage.getItem('readingData');
+        if (!savedData) {
+            showMessage('Nenhum dado encontrado. Por favor, salve seus dados primeiro.', 'erro');
+            return;
+        }
+
+        const data = JSON.parse(savedData);
+        if ((!data.hqs || data.hqs.total === 0) && (!data.livros || data.livros.total === 0)) {
+            showMessage('Nenhum dado de leitura encontrado. Adicione alguns dados primeiro.', 'erro');
+            return;
+        }
+
+        // Use enhanced email service with password verification
+        if (typeof enhancedEmailService !== 'undefined') {
+            enhancedEmailService.sendEmailWithPassword();
+        } else {
+            showMessage('Sistema de e-mail não disponível.', 'erro');
+        }
+    } catch (error) {
+        console.error('Erro ao preparar envio de e-mail:', error);
+        showMessage('Erro ao preparar envio de e-mail.', 'erro');
+    }
+}
+
+// Handle report download
+function handleDownloadReport() {
+  try {
+    // Check if there's data to download
+    const savedData = localStorage.getItem('readingData');
+    if (!savedData) {
+      showMessage('Nenhum dado encontrado. Por favor, salve seus dados primeiro.', 'erro');
+      return;
+    }
+
+    const data = JSON.parse(savedData);
+    if ((!data.hqs || data.hqs.total === 0) && (!data.livros || data.livros.total === 0)) {
+      showMessage('Nenhum dado de leitura encontrado. Adicione alguns dados primeiro.', 'erro');
+      return;
+    }
+
+    // Create report content
+    const reportContent = createReportContent(data);
+    
+    // Create and download file
+    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-leitura-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showMessage('Relatório baixado com sucesso! 📥', 'sucesso');
+  } catch (error) {
+    console.error('Erro ao baixar relatório:', error);
+    showMessage('Erro ao baixar relatório. Por favor, tente novamente.', 'erro');
+  }
+}
+
+// Create report content for download
+function createReportContent(data) {
+  const hqs = data.hqs || { total: 0, read: 0, emAndamento: 0, naoLidas: 0 };
+  const livros = data.livros || { total: 0, read: 0, emAndamento: 0, naoLidos: 0 };
+  
+  const totalItems = hqs.total + livros.total;
+  const totalLidos = hqs.read + livros.read;
+  const porcentagemLidos = totalItems > 0 ? ((totalLidos / totalItems) * 100).toFixed(2) : 0;
+  
+  return `RELATÓRIO DE LEITURA
+====================
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Hora: ${new Date().toLocaleTimeString('pt-BR')}
+
+📊 ESTATÍSTICAS GERAIS
+----------------------
+• Total de HQs: ${hqs.total}
+• HQs Lidas: ${hqs.read}
+• HQs Em Andamento: ${hqs.emAndamento || 0}
+• HQs Não Lidas: ${hqs.naoLidas || 0}
+
+• Total de Livros: ${livros.total}
+• Livros Lidos: ${livros.read}
+• Livros Em Andamento: ${livros.emAndamento || 0}
+• Livros Não Lidos: ${livros.naoLidos || 0}
+
+📈 PORCENTAGENS
+----------------
+• Porcentagem Total Lida: ${porcentagemLidos}%
+• Total de Itens: ${totalItems}
+• Total Lidos: ${totalLidos}
+
+====================
+Relatório gerado automaticamente pelo Dashboard de Leitura
+`;
 }
 
 // Initialize charts on page load
