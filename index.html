@@ -6,6 +6,7 @@
   <title>Dashboard de Leitura</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <header class="header">
@@ -98,6 +99,16 @@
             </div>
           </div>
         </div>
+        
+        <!-- Botões de Email -->
+        <div class="email-section">
+          <h3>📧 Enviar Relatório</h3>
+          <div class="email-buttons">
+            <button id="enviarEmailBtn" class="btn-email">📧 Enviar por E-mail</button>
+            <button id="downloadReportBtn" class="btn-download">📥 Baixar Relatório</button>
+          </div>
+          <div id="emailStatus" class="email-status"></div>
+        </div>
       </div>
     </section>
 
@@ -131,12 +142,23 @@
             <canvas id="graficoGeral"></canvas>
           </div>
         </div>
+        
+        <!-- Botões de Email também na aba gráficos -->
+        <div class="email-section">
+          <h3>📧 Enviar Relatório</h3>
+          <div class="email-buttons">
+            <button id="enviarEmailBtn2" class="btn-email">📧 Enviar por E-mail</button>
+            <button id="downloadReportBtn2" class="btn-download">📥 Baixar Relatório</button>
+          </div>
+          <div id="emailStatus2" class="email-status"></div>
+        </div>
       </div>
     </section>
   </main>
 
   <script src="errorHandler.js"></script>
   <script src="script.js"></script>
+  <script src="frontendEmailService.js"></script>
 </body>
 </html>
 </create_file>
