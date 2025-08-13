@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Leitura</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1>📚 Meu Histórico de Leitura</h1>
+    <nav class="nav">
+      <ul class="nav-links">
+        <li><a href="#" onclick="mostrarAba('home')">Home</a></li>
+        <li><a href="#" onclick="mostrarAba('graficos')">Gráficos</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div id="mensagem" class="mensagem"></div>
+  <div id="errorCard" class="error-card" style="display: none;">
+    <div class="error-content">
+      <span class="error-icon">⚠️</span>
+      <span class="error-text"></span>
+    </div>
+  </div>
+
+  <main>
+    <!-- Aba Home -->
+    <section id="home" class="aba ativa">
+      <div class="container">
+        <div class="form-section">
+          <h2>📊 Registrar Leitura</h2>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="qtdHqs">Total de HQs:</label>
+              <input type="number" id="qtdHqs" min="0" placeholder="Ex: 50" />
+            </div>
+            <div class="form-group">
+              <label for="hqsLidas">HQs Lidas:</label>
+              <input type="number" id="hqsLidas" min="0" placeholder="Ex: 30" />
+            </div>
+            <div class="form-group">
+              <label for="hqsEmAndamento">HQs Em Andamento:</label>
+              <input type="number" id="hqsEmAndamento" min="0" placeholder="Ex: 5" />
+            </div>
+
+            <div class="form-group">
+              <label for="qtdLivros">Total de Livros:</label>
+              <input type="number" id="qtdLivros" min="0" placeholder="Ex: 20" />
+            </div>
+            <div class="form-group">
+              <label for="livrosLidos">Livros Lidos:</label>
+              <input type="number" id="livrosLidos" min="0" placeholder="Ex: 15" />
+            </div>
+            <div class="form-group">
+              <label for="livrosEmAndamento">Livros Em Andamento:</label>
+              <input type="number" id="livrosEmAndamento" min="0" placeholder="Ex: 3" />
+            </div>
+          </div>
+          
+          <button id="adicionarBtn" class="btn-primary">➕ Adicionar</button>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="resumo-cards">
+          <div class="stat-card">
+            <h4>📚 HQs</h4>
+            <p><span class="label">Total:</span> <span class="value" id="totalHqs">0</span></p>
+            <p><span class="label">Lidas:</span> <span class="value" id="hqsLidasResumo">0</span></p>
+            <p><span class="label">Não Lidas:</span> <span class="value" id="hqsNaoLidasResumo">0</span></p>
+            <p><span class="label">Em Andamento:</span> <span class="value" id="hqsEmAndamentoResumo">0</span></p>
+            <p><span class="label">Porcentagem Lidas:</span> <span class="percentage" id="percentHqsLidasResumo">0%</span></p>
+            <p><span class="label">Porcentagem Não Lidas:</span> <span class="percentage" id="percentHqsNaoLidasResumo">0%</span></p>
+            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage" id="percentHqsEmAndamentoResumo">0%</span></p>
+            <p><span class="label">Média:</span> <span class="value" id="mediaHqs">0</span></p>
+            <p><span class="label">Desvio Padrão:</span> <span class="value" id="dpHqs">0</span></p>
+            <div class="progress-bar">
+              <div id="progressHqs" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <h4>📖 Livros</h4>
+            <p><span class="label">Total:</span> <span class="value" id="totalLivros">0</span></p>
+            <p><span class="label">Lidos:</span> <span class="value" id="livrosLidosResumo">0</span></p>
+            <p><span class="label">Não Lidos:</span> <span class="value" id="livrosNaoLidosResumo">0</span></p>
+            <p><span class="label">Em Andamento:</span> <span class="value" id="livrosEmAndamentoResumo">0</span></p>
+            <p><span class="label">Porcentagem Lidos:</span> <span class="percentage" id="percentLivrosLidosResumo">0%</span></p>
+            <p><span class="label">Porcentagem Não Lidos:</span> <span class="percentage" id="percentLivrosNaoLidosResumo">0%</span></p>
+            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage" id="percentLivrosEmAndamentoResumo">0%</span></p>
+            <p><span class="label">Média:</span> <span class="value" id="mediaLivros">0</span></p>
+            <p><span class="label">Desvio Padrão:</span> <span class="value" id="dpLivros">0</span></p>
+            <div class="progress-bar">
+              <div id="progressLivros" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Aba Gráficos -->
+    <section id="graficos" class="aba">
+      <div class="container">
+        <h2>📈 Visualizações Estatísticas</h2>
+        <div class="grafico-grid">
+          <div class="chart-container">
+            <h3>Porcentagem de HQs Lidas</h3>
+            <canvas id="graficoPercentHqs"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Porcentagem de Livros Lidos</h3>
+            <canvas id="graficoPercentLivros"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Proporção de Leitura</h3>
+            <canvas id="graficoProporcao"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Média de Leitura</h3>
+            <canvas id="graficoMedia"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Desvio Padrão</h3>
+            <canvas id="graficoDP"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3>Resumo Geral</h3>
+            <canvas id="graficoGeral"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="errorHandler.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+</create_file>
