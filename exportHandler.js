@@ -35,7 +35,13 @@ class ExportHandler {
     }
 
     createMessage(hqs, livros) {
-        return `📊 MEU HISTÓRICO DE LEITURA
+    const birthdayInfo = this.calculateAgeAndBirthdayCountdown('2006-11-12');
+
+    return `📊 MEU HISTÓRICO DE LEITURA
+
+👤 INFORMAÇÕES PESSOAIS
+• Idade atual: ${birthdayInfo.age} anos
+• Faltam: ${birthdayInfo.countdown.months} meses, ${birthdayInfo.countdown.days} dias, ${birthdayInfo.countdown.hours}h ${birthdayInfo.countdown.minutes}min ${birthdayInfo.countdown.seconds}s para o seu aniversário
 
 📚 HQs:
 • Total: ${hqs.total}
@@ -50,7 +56,7 @@ class ExportHandler {
 • % Concluídos: ${livros.total > 0 ? Math.round((livros.read/livros.total)*100) : 0}%
 
 📅 Data: ${new Date().toLocaleDateString('pt-BR')}`;
-    }
+}
 
     copyToClipboard(text) {
         // Usar a API moderna de clipboard
@@ -165,6 +171,34 @@ class ExportHandler {
 
         return notification;
     }
+    calculateAgeAndBirthdayCountdown(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+
+    const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+    if (today > nextBirthday) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+
+    const timeDiff = nextBirthday - today;
+    const months = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30.44));
+    const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    return {
+        age,
+        countdown: { months, days, hours, minutes, seconds }
+    };
+}
+
 }
 
 // Inicializar

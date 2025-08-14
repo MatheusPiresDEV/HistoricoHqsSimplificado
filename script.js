@@ -576,8 +576,50 @@ function handleDownloadReport() {
   }
 }
 
-// Create report content for download
-function createReportContent(data) {
+// Calculate age and birthday countdown
+function calculateAgeAndBirthdayCountdown(birthDate) {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  
+  // Calculate age
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  
+  // Calculate next birthday
+  const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+  
+  // If birthday has passed this year, set to next year
+  if (today > nextBirthday) {
+    nextBirthday.setFullYear(today.getFullYear() + 1);
+  }
+  
+  // Calculate time until next birthday
+  const timeDiff = nextBirthday - today;
+  
+  const months = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30.44));
+  const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+  
+  return {
+    age: age,
+    countdown: {
+      months: months,
+      days: days,
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds
+    }
+  };
+}
+
+// Create enhanced copy content with age and birthday info
+function createEnhancedCopyContent(data) {
   const hqs = data.hqs || { total: 0, read: 0, emAndamento: 0, naoLidas: 0 };
   const livros = data.livros || { total: 0, read: 0, emAndamento: 0, naoLidos: 0 };
   
@@ -585,36 +627,76 @@ function createReportContent(data) {
   const totalLidos = hqs.read + livros.read;
   const porcentagemLidos = totalItems > 0 ? ((totalLidos / totalItems) * 100).toFixed(2) : 0;
   
-  return `RELATÓRIO DE LEITURA
-====================
+  // Calculate age and birthday countdown
+  const birthdayInfo = calculateAgeAndBirthdayCountdown('2006-11-12');
+  
+  return `📊 MEU HISTÓRICO DE LEITURA
 
-Data: ${new Date().toLocaleDateString('pt-BR')}
-Hora: ${new Date().toLocaleTimeString('pt-BR')}
+👤 INFORMAÇÕES PESSOAIS
+• Idade Atual: ${birthdayInfo.age} anos
+• Próximo Aniversário: 12/11/${new Date().getFullYear() + (new Date().getMonth() > 10 || (new Date().getMonth() === 10 && new Date().getDate() > 12) ? 1 : 0)}
+• Tempo até o Aniversário: ${birthdayInfo.countdown.months} meses, ${birthdayInfo.countdown.days} dias, ${birthdayInfo.countdown.hours}h ${birthdayInfo.countdown.minutes}min ${birthdayInfo.countdown.seconds}s
 
-📊 ESTATÍSTICAS GERAIS
-----------------------
-• Total de HQs: ${hqs.total}
-• HQs Lidas: ${hqs.read}
-• HQs Em Andamento: ${hqs.emAndamento || 0}
-• HQs Não Lidas: ${hqs.naoLidas || 0}
+📚 HQs:
+• Total: ${hqs.total}
+• Lidas: ${hqs.read}
+• Em andamento: ${hqs.emAndamento || 0}
+• % Concluídas: ${hqs.total > 0 ? ((hqs.read / hqs.total) * 100).toFixed(1) : 0}%
 
-• Total de Livros: ${livros.total}
-• Livros Lidos: ${livros.read}
-• Livros Em Andamento: ${livros.emAndamento || 0}
-• Livros Não Lidos: ${livros.naoLidos || 0}
+📖 Livros:
+• Total: ${livros.total}
+• Lidos: ${livros.read}
+• Em andamento: ${livros.emAndamento || 0}
+• % Concluídos: ${livros.total > 0 ? ((livros.read / livros.total) * 100).toFixed(1) : 0}%
 
-📈 PORCENTAGENS
-----------------
-• Porcentagem Total Lida: ${porcentagemLidos}%
-• Total de Itens: ${totalItems}
-• Total Lidos: ${totalLidos}
-
-====================
-Relatório gerado automaticamente pelo Dashboard de Leitura
-`;
+📅 Data: ${new Date().toLocaleDateString('pt-BR')}`;
 }
 
 // Initialize charts on page load
 window.addEventListener('load', function() {
   setTimeout(renderizarGraficos, 500);
 });
+
+// Add copy functionality for export buttons
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners for copy buttons
+  const exportBtn = document.getElementById('exportBtn');
+  const exportBtn2 = document.getElementById('exportBtn2');
+  
+  if (exportBtn) {
+    exportBtn.addEventListener('click', handleCopyData);
+  }
+  
+  if (exportBtn2) {
+    exportBtn2.addEventListener('click', handleCopyData);
+  }
+});
+
+// Handle copy data functionality
+function handleCopyData() {
+  try {
+    // Check if there's data to copy
+    const savedData = localStorage.getItem('readingData');
+    if (!savedData) {
+      showMessage('Nenhum dado encontrado. Por favor, salve seus dados primeiro.', 'erro');
+      return;
+    }
+
+    const data = JSON.parse(savedData);
+    
+    // Create enhanced copy content with age and birthday info
+    const copyContent = createEnhancedCopyContent(data);
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(copyContent).then(() => {
+      showMessage('Dados copiados com sucesso! 📋', 'sucesso');
+    }).catch(err => {
+      console.error('Erro ao copiar:', err);
+      showMessage('Erro ao copiar dados. Por favor, tente novamente.', 'erro');
+    });
+    
+  } catch (error) {
+    console.error('Erro ao copiar dados:', error);
+    showMessage('Erro ao copiar dados.', 'erro');
+  }
+}

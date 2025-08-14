@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,10 +9,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
+
 <body>
   <header class="header">
     <h1>📚 Meu Histórico de Leitura</h1>
     <nav class="nav">
+      <div class="idade-info">
+        <p id="idadeTexto"></p>
+        <div class="progress-container">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </div>
+
       <ul class="nav-links">
         <li><a href="#" onclick="mostrarAba('home')">Home</a></li>
         <li><a href="#" onclick="mostrarAba('graficos')">Gráficos</a></li>
@@ -33,7 +42,7 @@
       <div class="container">
         <div class="form-section">
           <h2>📊 Registrar Leitura</h2>
-          
+
           <div class="form-grid">
             <div class="form-group">
               <label for="qtdHqs">Total de HQs:</label>
@@ -61,7 +70,7 @@
               <input type="number" id="livrosEmAndamento" min="0" placeholder="Ex: 3" />
             </div>
           </div>
-          
+
           <button id="adicionarBtn" class="btn-primary">➕ Adicionar</button>
         </div>
 
@@ -73,9 +82,12 @@
             <p><span class="label">Lidas:</span> <span class="value" id="hqsLidasResumo">0</span></p>
             <p><span class="label">Não Lidas:</span> <span class="value" id="hqsNaoLidasResumo">0</span></p>
             <p><span class="label">Em Andamento:</span> <span class="value" id="hqsEmAndamentoResumo">0</span></p>
-            <p><span class="label">Porcentagem Lidas:</span> <span class="percentage" id="percentHqsLidasResumo">0%</span></p>
-            <p><span class="label">Porcentagem Não Lidas:</span> <span class="percentage" id="percentHqsNaoLidasResumo">0%</span></p>
-            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage" id="percentHqsEmAndamentoResumo">0%</span></p>
+            <p><span class="label">Porcentagem Lidas:</span> <span class="percentage"
+                id="percentHqsLidasResumo">0%</span></p>
+            <p><span class="label">Porcentagem Não Lidas:</span> <span class="percentage"
+                id="percentHqsNaoLidasResumo">0%</span></p>
+            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage"
+                id="percentHqsEmAndamentoResumo">0%</span></p>
             <p><span class="label">Média:</span> <span class="value" id="mediaHqs">0</span></p>
             <p><span class="label">Desvio Padrão:</span> <span class="value" id="dpHqs">0</span></p>
             <div class="progress-bar">
@@ -89,9 +101,12 @@
             <p><span class="label">Lidos:</span> <span class="value" id="livrosLidosResumo">0</span></p>
             <p><span class="label">Não Lidos:</span> <span class="value" id="livrosNaoLidosResumo">0</span></p>
             <p><span class="label">Em Andamento:</span> <span class="value" id="livrosEmAndamentoResumo">0</span></p>
-            <p><span class="label">Porcentagem Lidos:</span> <span class="percentage" id="percentLivrosLidosResumo">0%</span></p>
-            <p><span class="label">Porcentagem Não Lidos:</span> <span class="percentage" id="percentLivrosNaoLidosResumo">0%</span></p>
-            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage" id="percentLivrosEmAndamentoResumo">0%</span></p>
+            <p><span class="label">Porcentagem Lidos:</span> <span class="percentage"
+                id="percentLivrosLidosResumo">0%</span></p>
+            <p><span class="label">Porcentagem Não Lidos:</span> <span class="percentage"
+                id="percentLivrosNaoLidosResumo">0%</span></p>
+            <p><span class="label">Porcentagem Em Andamento:</span> <span class="percentage"
+                id="percentLivrosEmAndamentoResumo">0%</span></p>
             <p><span class="label">Média:</span> <span class="value" id="mediaLivros">0</span></p>
             <p><span class="label">Desvio Padrão:</span> <span class="value" id="dpLivros">0</span></p>
             <div class="progress-bar">
@@ -99,7 +114,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Botões de Exportação -->
         <div class="email-section">
           <h3>📱 Compartilhar Dados</h3>
@@ -142,7 +157,7 @@
             <canvas id="graficoGeral"></canvas>
           </div>
         </div>
-        
+
         <!-- Botões de Exportação também na aba gráficos -->
         <div class="email-section">
           <h3>📱 Compartilhar Dados</h3>
@@ -159,11 +174,56 @@
   <script src="errorHandler.js"></script>
   <script src="script.js"></script>
   <script src="exportHandler.js"></script>
+<script>
+  function calculateAgeAndBirthdayCountdown(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+    if (today > nextBirthday) {
+      nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+
+    const timeDiff = nextBirthday - today;
+    const totalYearMs = nextBirthday - new Date(nextBirthday.getFullYear() - 1, birth.getMonth(), birth.getDate());
+    const progress = 100 - ((timeDiff / totalYearMs) * 100);
+
+    const months = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30.44));
+    const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    return {
+      age,
+      countdown: { months, days, hours, minutes, seconds },
+      progress: progress.toFixed(2)
+    };
+  }
+
+  function atualizarIdadeInfo() {
+    const info = calculateAgeAndBirthdayCountdown('2006-11-12');
+    const texto = `🎂 Idade atual: ${info.age} anos — Faltam ${info.countdown.months} meses, ${info.countdown.days} dias, ${info.countdown.hours}h ${info.countdown.minutes}min ${info.countdown.seconds}s para o seu aniversário`;
+    
+    document.getElementById('idadeTexto').textContent = texto;
+    document.getElementById('progressBar').style.width = `${info.progress}%`;
+  }
+
+  setInterval(atualizarIdadeInfo, 1000);
+  atualizarIdadeInfo();
+</script>
 </body>
+
 </html>
 </create_file>
 
 <attempt_completion>
-<result>
-</result>
+  <result>
+  </result>
 </attempt_completion>
