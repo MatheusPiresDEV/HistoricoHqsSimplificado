@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrinho de Compras</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* Estilos específicos para o carrinho */
+        :root {
+            --color-comprado: #22c55e;
+            --color-a-comprar: #ef4444;
+            --color-background: #f8fafc;
+            --color-surface: #ffffff;
+            --color-border: #e2e8f0;
+            --color-text: #1e293b;
+            --color-text-secondary: #64748b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .nav {
+            margin-top: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.ativa {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Estatísticas */
+        .stats-panel {
+            background: var(--color-surface);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .stat-card h3 {
+            color: var(--color-text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .stat-card .label {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Pesquisa e Filtros */
+        .search-filters {
+            background: var(--color-surface);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .search-box {
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        /* Seções de Adição */
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-card {
+            background: var(--color-surface);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .section-card h2 {
+            color: var(--color-text);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        /* Lista de Itens */
+        .items-list {
+            background: var(--color-surface);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .items-list h2 {
+            color: var(--color-text);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+        }
+
+        .item.comprado {
+            border-left: 4px solid var(--color-comprado);
+        }
+
+        .item.a-comprar {
+            border-left: 4px solid var(--color-a-comprar);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--color-text);
+        }
+
+        .item-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-comprado {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-a-comprar {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .item-details {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-time {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links a {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .section-card {
+                padding: 1rem;
+            }
+            
+            .items-list {
+                padding: 1rem;
+            }
+            
+            .item-actions {
+                flex-direction: column;
+            }
+            
+            .btn-small {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>🛒 Carrinho de Compras</h1>
+        <nav class="nav">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="adicionar.html">Biblioteca</a></li>
+                <li><a href="carrinho.html">Carrinho</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Painel de Estatísticas -->
+        <div class="stats-panel">
+            <h2>📊 Estatísticas do Carrinho - <span id="totalItens">0</span> itens no carrinho</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>✅ Itens Comprados</h3>
+                    <div class="value" id="totalComprados">0 - 0%</div>
+                    <div class="label">Total de itens marcados como comprados</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🛒 Itens a Comprar</h3>
+                    <div class="value" id="totalAComprar">0 - 0%</div>
+                    <div class="label">Total de itens pendentes</div>
+                </div>
+                <div class="stat-card">
+                    <h3>⏱️ Tempo Médio</h3>
+                    <div class="value" id="tempoMedio">0d 0h 0m</div>
+                    <div class="label">Tempo médio para conclusão</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pesquisa e Filtros -->
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Pesquisar itens por nome..." oninput="filtrarItens()">
+            </div>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="statusFilter">Filtrar por Status:</label>
+                    <select id="statusFilter" onchange="filtrarItens()">
+                        <option value="todos">Todos</option>
+                        <option value="comprado">Comprado</option>
+                        <option value="a-comprar">A Comprar</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dataAdicaoFilter">Data de Adição:</label>
+                    <input type="date" id="dataAdicaoFilter" onchange="filtrarItens()">
+                </div>
+                <div class="filter-group">
+                    <label for="dataCompraFilter">Data de Compra:</label>
+                    <input type="date" id="dataCompraFilter" onchange="filtrarItens()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Seções de Adição -->
+        <div class="sections-grid">
+            <!-- Coleções -->
+            <div class="section-card">
+                <h2>📦 Coleções</h2>
+                <p>Adicione vários itens de uma só vez (um por linha)</p>
+                <div class="form-group">
+                    <label for="colecoesTextarea">Itens (um por linha):</label>
+                    <textarea id="colecoesTextarea" placeholder="Digite os nomes dos itens, um por linha&#10;Ex:&#10;Livro de JavaScript&#10;HQ do Batman&#10;Revista de Programação"></textarea>
+                </div>
+                <button class="btn-primary" onclick="adicionarColecoes()">➕ Adicionar Coleção</button>
+            </div>
+
+            <!-- Adicionar apenas um -->
+            <div class="section-card">
+                <h2>➕ Adicionar apenas um</h2>
+                <div class="form-group">
+                    <label for="itemNome">Nome do Item:</label>
+                    <input type="text" id="itemNome" placeholder="Ex: Livro de JavaScript">
+                </div>
+                <button class="btn-primary" onclick="adicionarItem()">➕ Adicionar Item</button>
+            </div>
+        </div>
+
+        <!-- Lista de Itens -->
+        <div class="items-list">
+            <h2>📋 Itens do Carrinho</h2>
+            <div id="listaItens"></div>
+        </div>
+    </div>
+
+    <script>
+        let carrinho = [];
+        let itensFiltrados = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 15;
+
+        // Inicialização
+        window.onload = () => {
+            carregarCarrinho();
+            atualizarLista();
+            atualizarEstatisticas();
+        };
+
+        // Funções de CRUD
+        function carregarCarrinho() {
+            const dados = localStorage.getItem('carrinhoCompras');
+            if (dados) {
+                carrinho = JSON.parse(dados);
+            }
+        }
+
+        function salvarCarrinho() {
+            localStorage.setItem('carrinhoCompras', JSON.stringify(carrinho));
+        }
+
+        function adicionarItem() {
+            const nome = document.getElementById('itemNome').value.trim();
+            if (!nome) {
+                alert('Digite o nome do item.');
+                return;
+            }
+
+            const novoItem = {
+                id: Date.now(),
+                nome: nome,
+                status: 'a-comprar',
+                dataAdicionado: new Date().toISOString(),
+                dataComprado: null,
+                tempoDecorrido: null
+            };
+
+            carrinho.push(novoItem);
+            document.getElementById('itemNome').value = '';
+            salvarCarrinho();
+            atualizarLista();
+            atualizarEstatisticas();
+        }
+
+        function adicionarColecoes() {
+            const texto = document.getElementById('colecoesTextarea').value.trim();
+            if (!texto) {
+                alert('Digite os itens para adicionar.');
+                return;
+            }
+
+            const itens = texto.split('\n').filter(item => item.trim());
+            itens.forEach(item => {
+                const novoItem = {
+                    id: Date.now() + Math.random(),
+                    nome: item.trim(),
+                    status: 'a-comprar',
+                    dataAdicionado: new Date().toISOString(),
+                    dataComprado: null,
+                    tempoDecorrido: null
+                };
+                carrinho.push(novoItem);
+            });
+
+            document.getElementById('colecoesTextarea').value = '';
+            salvarCarrinho();
+            atualizarLista();
+            atualizarEstatisticas();
+        }
+
+        function alterarStatus(itemId) {
+            const item = carrinho.find(i => i.id === itemId);
+            if (item) {
+                if (item.status === 'a-comprar') {
+                    item.status = 'comprado';
+                    item.dataComprado = new Date().toISOString();
+                    
+                    // Calcular tempo decorrido
+                    const dataAdicionado = new Date(item.dataAdicionado);
+                    const dataComprado = new Date(item.dataComprado);
+                    const diffMs = dataComprado - dataAdicionado;
+                    
+                    const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const horas = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const segundos = Math.floor((diffMs % (1000 * 60)) / 1000);
+                    
+                    item.tempoDecorrido = { dias, horas, minutos, segundos };
+                } else {
+                    item.status = 'a-comprar';
+                    item.dataComprado = null;
+                    item.tempoDecorrido = null;
+                }
+                
+                salvarCarrinho();
+                atualizarLista();
+                atualizarEstatisticas();
+            }
+        }
+
+        function excluirItem(itemId) {
+            if (confirm('Tem certeza que deseja excluir este item?')) {
+                carrinho = carrinho.filter(item => item.id !== itemId);
+                salvarCarrinho();
+                atualizarLista();
+                atualizarEstatisticas();
+            }
+        }
+
+        // Funções de UI
+        function atualizarLista() {
+            itensFiltrados = [...carrinho];
+            filtrarItens();
+        }
+
+        function filtrarItens() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dataAdicaoFilter = document.getElementById('dataAdicaoFilter').value;
+            const dataCompraFilter = document.getElementById('dataCompraFilter').value;
+
+            let filtered = carrinho;
+
+            // Filtro de pesquisa
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.nome.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Filtro de status
+            if (statusFilter !== 'todos') {
+                filtered = filtered.filter(item => item.status === statusFilter);
+            }
+
+            // Filtro de data de adição
+            if (dataAdicaoFilter) {
+                filtered = filtered.filter(item => {
+                    const itemDate = new Date(item.dataAdicionado).toISOString().split('T')[0];
+                    return itemDate === dataAdicaoFilter;
+                });
+            }
+
+            // Filtro de data de compra
+            if (dataCompraFilter && statusFilter === 'comprado') {
+                filtered = filtered.filter(item => {
+                    if (!item.dataComprado) return false;
+                    const itemDate = new Date(item.dataComprado).toISOString().split('T')[0];
+                    return itemDate === dataCompraFilter;
+                });
+            }
+
+            itensFiltrados = filtered;
+            paginaAtual = 1; // Resetar para a primeira página ao filtrar
+            renderizarItens();
+        }
+
+        function renderizarItens() {
+            const lista = document.getElementById('listaItens');
+            lista.innerHTML = '';
+
+            const totalPaginas = Math.ceil(itensFiltrados.length / itensPorPagina);
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = inicio + itensPorPagina;
+            const itensParaMostrar = itensFiltrados.slice(inicio, fim);
+
+            if (itensFiltrados.length === 0) {
+                lista.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary);">Nenhum item encontrado.</p>';
+                return;
+            }
+
+            itensParaMostrar.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `item ${item.status}`;
+
+                const dataAdicionado = new Date(item.dataAdicionado).toLocaleString('pt-BR');
+                let dataComprado = '';
+                let tempoDecorrido = '';
+
+                if (item.status === 'comprado' && item.dataComprado) {
+                    dataComprado = new Date(item.dataComprado).toLocaleString('pt-BR');
+                    if (item.tempoDecorrido) {
+                        tempoDecorrido = `Tempo: ${item.tempoDecorrido.dias}d ${item.tempoDecorrido.horas}h ${item.tempoDecorrido.minutos}m ${item.tempoDecorrido.segundos}s`;
+                    }
+                }
+
+                div.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-name">${item.nome}</span>
+                        <span class="item-status status-${item.status}">
+                            ${item.status === 'comprado' ? '✅ Comprado' : '🛒 A Comprar'}
+                        </span>
+                    </div>
+                    <div class="item-details">
+                        Adicionado em: ${dataAdicionado}
+                        ${dataComprado ? `<br>Comprado em: ${dataComprado}` : ''}
+                    </div>
+                    ${tempoDecorrido ? `<div class="item-time">${tempoDecorrido}</div>` : ''}
+                    <div class="item-actions">
+                        <button class="btn-small btn-edit" onclick="alterarStatus(${item.id})">
+                            ${item.status === 'a-comprar' ? '✅ Marcar como Comprado' : '↩️ Voltar para A Comprar'}
+                        </button>
+                        <button class="btn-small btn-delete" onclick="excluirItem(${item.id})">
+                            🗑️ Excluir
+                        </button>
+                    </div>
+                `;
+
+                lista.appendChild(div);
+            });
+
+            // Adicionar navegação de paginação
+            if (totalPaginas > 1) {
+                const paginacaoDiv = document.createElement('div');
+                paginacaoDiv.style.marginTop = '2rem';
+                paginacaoDiv.style.display = 'flex';
+                paginacaoDiv.style.justifyContent = 'center';
+                paginacaoDiv.style.alignItems = 'center';
+                paginacaoDiv.style.gap = '1rem';
+                paginacaoDiv.style.flexWrap = 'wrap';
+
+                // Botão anterior
+                if (paginaAtual > 1) {
+                    const btnAnterior = document.createElement('button');
+                    btnAnterior.textContent = '← Anterior';
+                    btnAnterior.className = 'btn-small btn-edit';
+                    btnAnterior.onclick = () => {
+                        paginaAtual--;
+                        renderizarItens();
+                    };
+                    paginacaoDiv.appendChild(btnAnterior);
+                }
+
+                // Informação da página
+                const infoPagina = document.createElement('span');
+                infoPagina.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
+                infoPagina.style.color = 'var(--color-text-secondary)';
+                paginacaoDiv.appendChild(infoPagina);
+
+                // Botão próximo
+                if (paginaAtual < totalPaginas) {
+                    const btnProximo = document.createElement('button');
+                    btnProximo.textContent = 'Próximo →';
+                    btnProximo.className = 'btn-small btn-edit';
+                    btnProximo.onclick = () => {
+                        paginaAtual++;
+                        renderizarItens();
+                    };
+                    paginacaoDiv.appendChild(btnProximo);
+                }
+
+                // Campo de seleção de página
+                const paginaInput = document.createElement('input');
+                paginaInput.type = 'number';
+                paginaInput.min = 1;
+                paginaInput.max = totalPaginas;
+                paginaInput.value = paginaAtual;
+                paginaInput.style.width = '50px';
+                paginaInput.style.textAlign = 'center';
+
+                const btnIr = document.createElement('button');
+                btnIr.textContent = 'Ir';
+                btnIr.className = 'btn-small btn-edit';
+                btnIr.onclick = () => {
+                    const paginaSelecionada = parseInt(paginaInput.value);
+                    if (paginaSelecionada >= 1 && paginaSelecionada <= totalPaginas) {
+                        paginaAtual = paginaSelecionada;
+                        renderizarItens();
+                    } else {
+                        alert('Número de página inválido.');
+                    }
+                };
+
+                paginacaoDiv.appendChild(paginaInput);
+                paginacaoDiv.appendChild(btnIr);
+                lista.appendChild(paginacaoDiv);
+            }
+        }
+
+        function atualizarEstatisticas() {
+            const totalItens = carrinho.length;
+            const totalComprados = carrinho.filter(item => item.status === 'comprado').length;
+            const totalAComprar = carrinho.filter(item => item.status === 'a-comprar').length;
+
+            // Calcular porcentagens
+            const porcentagemComprados = totalItens > 0 ? Math.round((totalComprados / totalItens) * 100) : 0;
+            const porcentagemAComprar = totalItens > 0 ? Math.round((totalAComprar / totalItens) * 100) : 0;
+
+            // Atualizar estatísticas com porcentagens
+            document.getElementById('totalComprados').textContent = `${totalComprados} - ${porcentagemComprados}%`;
+            document.getElementById('totalAComprar').textContent = `${totalAComprar} - ${porcentagemAComprar}%`;
+            document.getElementById('totalItens').textContent = totalItens;
+
+            // Calcular tempo médio em milissegundos
+            const itensComprados = carrinho.filter(item => item.status === 'comprado' && item.dataComprado && item.dataAdicionado);
+            if (itensComprados.length > 0) {
+                let totalTempoMs = 0;
+                
+                itensComprados.forEach(item => {
+                    const dataAdicionado = new Date(item.dataAdicionado);
+                    const dataComprado = new Date(item.dataComprado);
+                    totalTempoMs += (dataComprado - dataAdicionado);
+                });
+
+                const tempoMedioMs = totalTempoMs / itensComprados.length;
+                
+                // Converter milissegundos para dias, horas, minutos
+                const dias = Math.floor(tempoMedioMs / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((tempoMedioMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((tempoMedioMs % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((tempoMedioMs % (1000 * 60)) / 1000);
+
+                document.getElementById('tempoMedio').textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+            } else {
+                document.getElementById('tempoMedio').textContent = '0d 0h 0m 0s';
+            }
+        }
+    </script>
+</body>
+
+</html>
