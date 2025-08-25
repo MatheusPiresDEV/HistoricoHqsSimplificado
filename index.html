@@ -24,6 +24,7 @@
       <ul class="nav-links">
         <li><a href="#" onclick="mostrarAba('home')">Home</a></li>
         <li><a href="#" onclick="mostrarAba('graficos')">Gráficos</a></li>
+        <li><a href="adicionar.html">Biblioteca</a></li>
       </ul>
     </nav>
   </header>
@@ -174,50 +175,50 @@
   <script src="errorHandler.js"></script>
   <script src="script.js"></script>
   <script src="exportHandler.js"></script>
-<script>
-  function calculateAgeAndBirthdayCountdown(birthDate) {
-    const today = new Date();
-    const birth = new Date(birthDate);
+  <script>
+    function calculateAgeAndBirthdayCountdown(birthDate) {
+      const today = new Date();
+      const birth = new Date(birthDate);
 
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+
+      const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+      if (today > nextBirthday) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+      }
+
+      const timeDiff = nextBirthday - today;
+      const totalYearMs = nextBirthday - new Date(nextBirthday.getFullYear() - 1, birth.getMonth(), birth.getDate());
+      const progress = 100 - ((timeDiff / totalYearMs) * 100);
+
+      const months = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30.44));
+      const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+      return {
+        age,
+        countdown: { months, days, hours, minutes, seconds },
+        progress: progress.toFixed(2)
+      };
     }
 
-    const nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
-    if (today > nextBirthday) {
-      nextBirthday.setFullYear(today.getFullYear() + 1);
+    function atualizarIdadeInfo() {
+      const info = calculateAgeAndBirthdayCountdown('2006-11-12');
+      const texto = `🎂 Idade atual: ${info.age} anos — Faltam ${info.countdown.months} meses, ${info.countdown.days} dias, ${info.countdown.hours}h ${info.countdown.minutes}min ${info.countdown.seconds}s para o seu aniversário`;
+
+      document.getElementById('idadeTexto').textContent = texto;
+      document.getElementById('progressBar').style.width = `${info.progress}%`;
     }
 
-    const timeDiff = nextBirthday - today;
-    const totalYearMs = nextBirthday - new Date(nextBirthday.getFullYear() - 1, birth.getMonth(), birth.getDate());
-    const progress = 100 - ((timeDiff / totalYearMs) * 100);
-
-    const months = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30.44));
-    const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-    return {
-      age,
-      countdown: { months, days, hours, minutes, seconds },
-      progress: progress.toFixed(2)
-    };
-  }
-
-  function atualizarIdadeInfo() {
-    const info = calculateAgeAndBirthdayCountdown('2006-11-12');
-    const texto = `🎂 Idade atual: ${info.age} anos — Faltam ${info.countdown.months} meses, ${info.countdown.days} dias, ${info.countdown.hours}h ${info.countdown.minutes}min ${info.countdown.seconds}s para o seu aniversário`;
-    
-    document.getElementById('idadeTexto').textContent = texto;
-    document.getElementById('progressBar').style.width = `${info.progress}%`;
-  }
-
-  setInterval(atualizarIdadeInfo, 1000);
-  atualizarIdadeInfo();
-</script>
+    setInterval(atualizarIdadeInfo, 1000);
+    atualizarIdadeInfo();
+  </script>
 </body>
 
 </html>
