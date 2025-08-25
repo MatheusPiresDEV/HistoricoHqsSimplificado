@@ -558,18 +558,43 @@ function handleDownloadReport() {
     // Create HTML report content
     const reportContent = createHTMLReportContent(data);
     
-    // Create and download file
+    // Create and download file with improved error handling
     const blob = new Blob([reportContent], { type: 'text/html;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `dashboard-leitura-${new Date().toISOString().split('T')[0]}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    a.style.display = 'none';
     
-    showMessage('Dashboard baixado com sucesso! 📥', 'sucesso');
+    // Add to document and trigger click
+    document.body.appendChild(a);
+    
+    // Use setTimeout to ensure the UI remains responsive
+    setTimeout(() => {
+      try {
+        a.click();
+        
+        // Clean up after a short delay to prevent UI issues
+        setTimeout(() => {
+          if (document.body.contains(a)) {
+            document.body.removeChild(a);
+          }
+          window.URL.revokeObjectURL(url);
+        }, 100);
+        
+        showMessage('Dashboard baixado com sucesso! 📥', 'sucesso');
+      } catch (error) {
+        console.error('Erro ao iniciar download:', error);
+        showMessage('Erro ao baixar dashboard. Por favor, tente novamente.', 'erro');
+        
+        // Clean up on error
+        if (document.body.contains(a)) {
+          document.body.removeChild(a);
+        }
+        window.URL.revokeObjectURL(url);
+      }
+    }, 100);
+    
   } catch (error) {
     console.error('Erro ao baixar dashboard:', error);
     showMessage('Erro ao baixar dashboard. Por favor, tente novamente.', 'erro');
@@ -1229,9 +1254,8 @@ function calculateAgeAndBirthdayCountdown(birthDate) {
       minutes: minutes,
       seconds: seconds
     },
-    progress: Math.max(0, Math.min(100, parseFloat(progress.toFixed(2))))
+    progress: Math.max(0, Math.min(100, progress.toFixed(2)))
   };
-}
 
 // Create enhanced copy content with age and birthday info
 function createEnhancedCopyContent(data) {
@@ -1593,5 +1617,6 @@ function identificarColecoes(carrinhoData) {
   }
   
   return colecoes;
+}
 }
 }
