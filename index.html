@@ -12,7 +12,7 @@
 
 <body>
   <header class="header">
-    <h1>📚 Meu Histórico de Leitura</h1>
+    <h1> Meu Histórico de Leitura</h1>
     <nav class="nav">
       <div class="idade-info">
         <p id="idadeTexto"></p>
@@ -43,7 +43,7 @@
     <section id="home" class="aba ativa">
       <div class="container">
         <div class="form-section">
-          <h2>📊 Registrar Leitura</h2>
+          <h2> Registrar Leitura</h2>
 
           <div class="form-grid">
             <div class="form-group">
@@ -79,7 +79,7 @@
         <!-- Estatísticas -->
         <div class="resumo-cards">
           <div class="stat-card">
-            <h4>📚 HQs</h4>
+            <h4> HQs</h4>
             <p><span class="label">Total:</span> <span class="value" id="totalHqs">0</span></p>
             <p><span class="label">Lidas:</span> <span class="value" id="hqsLidasResumo">0</span></p>
             <p><span class="label">Não Lidas:</span> <span class="value" id="hqsNaoLidasResumo">0</span></p>
@@ -98,7 +98,7 @@
           </div>
 
           <div class="stat-card">
-            <h4>📖 Livros</h4>
+            <h4> Livros</h4>
             <p><span class="label">Total:</span> <span class="value" id="totalLivros">0</span></p>
             <p><span class="label">Lidos:</span> <span class="value" id="livrosLidosResumo">0</span></p>
             <p><span class="label">Não Lidos:</span> <span class="value" id="livrosNaoLidosResumo">0</span></p>
@@ -119,7 +119,7 @@
 
         <!-- Botões de Exportação -->
         <div class="email-section">
-          <h3>📱 Compartilhar Dados</h3>
+          <h3> Compartilhar Dados</h3>
           <div class="email-buttons">
             <button id="exportBtn" class="btn-email">📱 Copiar Dados</button>
             <button id="downloadReportBtn" class="btn-download">📥 Baixar Relatório</button>
@@ -132,7 +132,7 @@
     <!-- Aba Gráficos -->
     <section id="graficos" class="aba">
       <div class="container">
-        <h2>📈 Visualizações Estatísticas</h2>
+        <h2> Visualizações Estatísticas</h2>
         <div class="grafico-grid">
           <div class="chart-container">
             <h3>Porcentagem de HQs Lidas</h3>
@@ -162,7 +162,7 @@
 
         <!-- Botões de Exportação também na aba gráficos -->
         <div class="email-section">
-          <h3>📱 Compartilhar Dados</h3>
+          <h3> Compartilhar Dados</h3>
           <div class="email-buttons">
             <button id="exportBtn2" class="btn-email">📱 Copiar Dados</button>
             <button id="downloadReportBtn2" class="btn-download">📥 Baixar Relatório</button>
@@ -211,7 +211,7 @@
 
     function atualizarIdadeInfo() {
       const info = calculateAgeAndBirthdayCountdown('2006-11-12');
-      const texto = `🎂 Idade atual: ${info.age} anos — Faltam ${info.countdown.months} meses, ${info.countdown.days} dias, ${info.countdown.hours}h ${info.countdown.minutes}min ${info.countdown.seconds}s para o seu aniversário`;
+      const texto = `Idade atual: ${info.age} anos — Faltam ${info.countdown.months} meses, ${info.countdown.days} dias, ${info.countdown.hours}h ${info.countdown.minutes}min ${info.countdown.seconds}s para o seu aniversário`;
 
       document.getElementById('idadeTexto').textContent = texto;
       document.getElementById('progressBar').style.width = `${info.progress}%`;

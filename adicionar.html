@@ -57,35 +57,60 @@
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: bold;
+            color: #374151;
+            font-size: 0.9rem;
         }
 
         input,
-        select,
-        button {
+        select {
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.75rem;
             font-size: 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #ffffff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         button {
-            background-color: #3b82f6;
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             font-weight: bold;
             cursor: pointer;
             margin-top: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         button:hover {
-            background-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         .biblioteca-lista {
@@ -172,17 +197,89 @@
                 align-items: flex-start;
             }
             
-            .item-buttons {
+        .item-buttons {
                 margin-top: 10px;
                 align-self: flex-end;
             }
+        }
+
+        /* Modal para alterar status */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+        }
+
+        .radio-group {
+            margin: 10px 0;
+        }
+
+        .radio-group label {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            margin-left: 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .cancel-btn {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background-color: #4b5563;
         }
     </style>
 </head>
 
 <body>
     <header class="header">
-        <h1>📚 Meu Histórico de Leitura</h1>
+        <h1>Meu Histórico de Leitura</h1>
         <nav class="nav">
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
@@ -192,7 +289,7 @@
         </nav>
     </header>
     <div class="container">
-        <h2>➕ Adicionar à Biblioteca</h2>
+        <h2>Adicionar à Biblioteca</h2>
         <div class="form-group"> 
             <label for="tipoItem">Tipo:</label> 
             <select id="tipoItem">
@@ -207,34 +304,75 @@
         <div class="form-group"> 
             <label for="statusItem">Status:</label> 
             <select id="statusItem">
-                <option value="lido">Lido ✅</option>
-                <option value="emAndamento">Em Andamento 🔄</option>
-                <option value="naoLido">Não Lido ❌</option>
+                <option value="lido">Lido </option>
+                <option value="emAndamento">Em Andamento </option>
+                <option value="naoLido">Não Lido </option>
             </select> 
         </div>
         <div class="form-group"> 
             <label for="paginasItem">Número de Páginas:</label> 
             <input type="number" id="paginasItem" placeholder="Ex: 200" /> 
         </div>
-        <button onclick="adicionarItem()">➕ Adicionar</button>
+        <button onclick="adicionarItem()">Adicionar</button>
+        <button id="btnToggleResumo" onclick="toggleResumo()">Mostrar Resumo</button>
         
-        <div class="biblioteca-lista" id="listaBiblioteca"></div>
-        
-        <div class="resumo" id="resumoStatus">
-            <h3>📊 Resumo</h3>
+        <div class="resumo" id="resumoStatus" style="display:none;">
+            <h3>Resumo</h3>
             <p id="resumoHQs"></p>
             <p id="resumoLivros"></p>
+        </div>
+        <div class="filtros">
+            <input type="text" id="filtroNome" placeholder="Buscar por nome..." oninput="aplicarFiltros()" />
+            <select id="filtroStatus" onchange="aplicarFiltros()">
+                <option value="">Todos os status</option>
+                <option value="lido">Lidos</option>
+                <option value="emAndamento">Em andamento</option>
+                <option value="naoLido">Não lidos</option>
+            </select>
+        </div>
+        <div id="listaBiblioteca"></div>
+        <div class="paginacao">
+            <button onclick="paginaAnterior()">Anterior</button>
+            <span id="paginaAtual">1</span> / <span id="totalPaginas">1</span>
+            <button onclick="proximaPagina()">Próxima</button>
+            <input type="number" id="inputPagina" min="1" style="width: 50px;" oninput="irParaPagina()" />
+        </div>
+    </div>
+
+    <!-- Modal para alterar status -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <h3>Alterar Status</h3>
+            <p id="modalItemName"></p>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="status" value="lido"> Lido
+                </label>
+                <label>
+                    <input type="radio" name="status" value="emAndamento"> Em Andamento
+                </label>
+                <label>
+                    <input type="radio" name="status" value="naoLido"> Não Lido
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
+                <button class="confirm-btn" onclick="confirmarAlteracaoStatus()">Confirmar</button>
+            </div>
         </div>
     </div>
 
     <script>
         let biblioteca = [];
-        
+        let itensFiltrados = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 15;
+
         window.onload = () => {
             const dadosSalvos = localStorage.getItem('minhaBiblioteca');
             if (dadosSalvos) {
                 biblioteca = JSON.parse(dadosSalvos);
-                atualizarLista();
+                aplicarFiltros();
                 atualizarResumo();
             }
         };
@@ -251,18 +389,19 @@
             }
 
             const dataAdicionado = new Date().toLocaleString();
-            biblioteca.push({ 
-                tipo, 
-                nome, 
-                status, 
-                dataAdicionado, 
-                paginas, 
+            const tempoPorPagina = tipo === 'hq' ? 20 : 50; // HQ: 20s, Livro: 50s
+            biblioteca.push({
+                tipo,
+                nome,
+                status,
+                dataAdicionado,
+                paginas,
                 historicoStatus: [],
                 dataInicio: null,
                 dataFim: null,
                 timestampInicio: null,
                 timestampFim: null,
-                tempoEstimado: paginas * 15, // Tempo estimado em segundos
+                tempoEstimado: paginas * tempoPorPagina, // Tempo estimado em segundos
                 tempoReal: null,
                 classificacaoVelocidade: null
             });
@@ -270,7 +409,7 @@
             document.getElementById('nomeItem').value = '';
             document.getElementById('paginasItem').value = '';
             salvarNoLocalStorage();
-            atualizarLista();
+            aplicarFiltros();
             atualizarResumo();
         }
 
@@ -278,68 +417,136 @@
             if (confirm('Tem certeza que deseja apagar este item?')) {
                 biblioteca.splice(index, 1);
                 salvarNoLocalStorage();
-                atualizarLista();
+                aplicarFiltros();
                 atualizarResumo();
             }
         }
 
+        let itemIndexParaAlterar = null;
+
         function alterarStatus(index) {
+            itemIndexParaAlterar = index;
             const item = biblioteca[index];
-            const novoStatus = prompt(`Alterar status de "${item.nome}":\nDigite "lido", "emAndamento" ou "naoLido"`);
-            
-            if (novoStatus && ['lido', 'emAndamento', 'naoLido'].includes(novoStatus)) {
-                const timestampAtual = Date.now();
-                const dataAlteracao = new Date(timestampAtual).toLocaleString();
-                
-                // Registrar histórico
-                item.historicoStatus.push({
-                    statusAnterior: item.status,
-                    statusNovo: novoStatus,
-                    dataAlteracao: dataAlteracao
-                });
-                
-                // Atualizar status atual
-                item.status = novoStatus;
-                
-                // Se mudou para "em andamento", registrar timestamp de início
-                if (novoStatus === 'emAndamento' && !item.timestampInicio) {
-                    item.timestampInicio = timestampAtual;
-                    item.dataInicio = dataAlteracao;
-                }
-                
-                // Se mudou para "lido", registrar timestamp de fim e calcular velocidade
-                if (novoStatus === 'lido' && item.timestampInicio && !item.timestampFim) {
-                    item.timestampFim = timestampAtual;
-                    item.dataFim = dataAlteracao;
-                    calcularVelocidadeLeitura(item);
-                }
-                
-                salvarNoLocalStorage();
-                atualizarLista();
-                atualizarResumo();
+            document.getElementById('modalItemName').textContent = `Alterar status de: ${item.nome}`;
+            document.getElementById('statusModal').style.display = 'block';
+
+            // Limpar seleção anterior
+            const radios = document.querySelectorAll('input[name="status"]');
+            radios.forEach(radio => radio.checked = false);
+        }
+
+        function fecharModal() {
+            document.getElementById('statusModal').style.display = 'none';
+            itemIndexParaAlterar = null;
+        }
+
+        // Fechar modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('statusModal');
+            if (event.target == modal) {
+                fecharModal();
             }
+        }
+
+        function confirmarAlteracaoStatus() {
+            if (itemIndexParaAlterar === null) return;
+
+            const selectedRadio = document.querySelector('input[name="status"]:checked');
+            if (!selectedRadio) {
+                alert('Por favor, selecione um status.');
+                return;
+            }
+
+            const novoStatus = selectedRadio.value;
+            const item = biblioteca[itemIndexParaAlterar];
+            const timestampAtual = Date.now();
+            const dataAlteracao = new Date(timestampAtual).toLocaleString();
+
+            // Registrar histórico
+            item.historicoStatus.push({
+                statusAnterior: item.status,
+                statusNovo: novoStatus,
+                dataAlteracao: dataAlteracao
+            });
+
+            // Atualizar status atual
+            item.status = novoStatus;
+
+            // Se mudou para "em andamento", registrar timestamp de início
+            if (novoStatus === 'emAndamento' && !item.timestampInicio) {
+                item.timestampInicio = timestampAtual;
+                item.dataInicio = dataAlteracao;
+            }
+
+            // Se mudou para "lido", registrar timestamp de fim e calcular velocidade
+            if (novoStatus === 'lido' && item.timestampInicio && !item.timestampFim) {
+                item.timestampFim = timestampAtual;
+                item.dataFim = dataAlteracao;
+                calcularVelocidadeLeitura(item);
+            }
+
+            salvarNoLocalStorage();
+            aplicarFiltros();
+            atualizarResumo();
+            fecharModal();
         }
 
         function calcularVelocidadeLeitura(item) {
             if (item.timestampInicio && item.timestampFim && item.paginas) {
                 try {
-                    // Calcular diferença direta dos timestamps
-                    item.tempoReal = (item.timestampFim - item.timestampInicio) / 1000; // Tempo real em segundos
-                    
-                    if (item.tempoReal > 0) {
-                        const percentual = (item.tempoReal / item.tempoEstimado) * 100;
+                    // Tempo real em segundos (elapsed time)
+                    item.tempoReal = (item.timestampFim - item.timestampInicio) / 1000;
 
-                        if (percentual < 50) item.classificacaoVelocidade = 'Muito Rápido';
-                        else if (percentual < 80) item.classificacaoVelocidade = 'Rápido';
-                        else if (percentual < 120) item.classificacaoVelocidade = 'Normal';
-                        else if (percentual < 150) item.classificacaoVelocidade = 'Lento';
-                        else item.classificacaoVelocidade = 'Muito Lento';
+                    if (item.tempoReal > 0) {
+                        // Calcular tempo ideal
+                        const tempoPorPagina = item.tipo === 'hq' ? 20 : 50;
+                        const idealSeconds = item.paginas * tempoPorPagina;
+
+                        // Rotina: 3 dias/semana, 1h/dia = 3600s/dia * 3 = 10800s/semana
+                        const idealDays = idealSeconds / 3600;
+                        const idealWeeks = idealDays / 3;
+
+                        // Tempo real em semanas (elapsed weeks)
+                        const realWeeks = item.tempoReal / (3600 * 7); // 3600s/h * 24h/d * 7d/w
+
+                        // Ratio
+                        const ratio = realWeeks / idealWeeks;
+
+                        // Classificação
+                        if (ratio <= 1) item.classificacaoVelocidade = 'Muito rápido';
+                        else if (ratio <= 2) item.classificacaoVelocidade = 'Rápido';
+                        else if (ratio <= 3) item.classificacaoVelocidade = 'Normal';
+                        else if (ratio <= 4) item.classificacaoVelocidade = 'Lento';
+                        else item.classificacaoVelocidade = 'Muito lento';
                     }
                 } catch (error) {
                     console.error('Erro ao calcular velocidade:', error);
                     item.tempoReal = null;
                     item.classificacaoVelocidade = 'Erro no cálculo';
                 }
+            }
+        }
+
+        function getTimeUnit(idealWeeks) {
+            if (idealWeeks < 1 / 7) return 'minutes'; // menos de 1 dia
+            if (idealWeeks < 4) return 'weeks';
+            if (idealWeeks < 12) return 'months';
+            return 'quarters';
+        }
+
+        function formatTime(seconds, unit) {
+            if (unit === 'minutes') {
+                const minutes = seconds / 60;
+                return `${minutes.toFixed(1)} min`;
+            } else if (unit === 'weeks') {
+                const weeks = seconds / (3600 * 7);
+                return `${weeks.toFixed(1)} semanas`;
+            } else if (unit === 'months') {
+                const months = seconds / (3600 * 7 * 4);
+                return `${months.toFixed(1)} meses`;
+            } else { // quarters
+                const quarters = seconds / (3600 * 7 * 12);
+                return `${quarters.toFixed(1)} trimestres`;
             }
         }
 
@@ -356,7 +563,7 @@
                 div.className = `item-biblioteca item-${item.status}`;
                 
                 const infoDiv = document.createElement('div');
-                let infoText = `${item.tipo === 'hq' ? '📚 HQ' : '📖 Livro'}: ${item.nome} — ${statusLabel(item.status)}`;
+                let infoText = `${item.tipo === 'hq' ? 'HQ' : 'Livro'}: ${item.nome} — ${statusLabel(item.status)}`;
                 infoText += `\nAdicionado em: ${item.dataAdicionado}`;
                 
                 if (item.dataInicio) {
@@ -364,29 +571,51 @@
                 }
                 if (item.dataFim) {
                     infoText += `\nFinalizado em: ${item.dataFim}`;
-                    
+
+                    // Calcular unidade de tempo baseada no tempo ideal
+                    const tempoPorPagina = item.tipo === 'hq' ? 20 : 50;
+                    const idealSeconds = item.paginas * tempoPorPagina;
+                    const idealHours = idealSeconds / 3600;
+                    const idealWeeks = idealHours / 3; // 3 hours/week
+                    const unit = getTimeUnit(idealWeeks);
+
                     // Formatar tempo estimado
-                    const tempoEstimadoMin = Math.floor(item.tempoEstimado / 60);
-                    const tempoEstimadoSeg = item.tempoEstimado % 60;
-                    const tempoEstimadoFormatado = tempoEstimadoMin > 0 ? 
-                        `${tempoEstimadoMin} min ${tempoEstimadoSeg} seg` : 
-                        `${tempoEstimadoSeg} seg`;
-                    
+                    let tempoEstimadoFormatado;
+                    if (unit === 'minutes') {
+                        const minutes = idealSeconds / 60;
+                        tempoEstimadoFormatado = `${minutes.toFixed(1)} min`;
+                    } else if (unit === 'weeks') {
+                        tempoEstimadoFormatado = `${idealWeeks.toFixed(1)} semanas`;
+                    } else if (unit === 'months') {
+                        const months = idealWeeks / 4;
+                        tempoEstimadoFormatado = `${months.toFixed(1)} meses`;
+                    } else { // quarters
+                        const quarters = idealWeeks / 12;
+                        tempoEstimadoFormatado = `${quarters.toFixed(1)} trimestres`;
+                    }
                     infoText += `\nTempo Estimado: ${tempoEstimadoFormatado}`;
-                    
+
                     // Formatar tempo real
                     if (item.tempoReal !== null) {
-                        const tempoRealMin = Math.floor(item.tempoReal / 60);
-                        const tempoRealSeg = item.tempoReal % 60;
-                        const tempoRealFormatado = tempoRealMin > 0 ? 
-                            `${tempoRealMin} min ${tempoRealSeg.toFixed(0)} seg` : 
-                            `${tempoRealSeg.toFixed(0)} seg`;
-                        
+                        let tempoRealFormatado;
+                        if (unit === 'minutes') {
+                            const minutes = item.tempoReal / 60;
+                            tempoRealFormatado = `${minutes.toFixed(1)} min`;
+                        } else if (unit === 'weeks') {
+                            const weeks = item.tempoReal / (3600 * 7);
+                            tempoRealFormatado = `${weeks.toFixed(1)} semanas`;
+                        } else if (unit === 'months') {
+                            const months = item.tempoReal / (3600 * 7 * 4);
+                            tempoRealFormatado = `${months.toFixed(1)} meses`;
+                        } else { // quarters
+                            const quarters = item.tempoReal / (3600 * 7 * 12);
+                            tempoRealFormatado = `${quarters.toFixed(1)} trimestres`;
+                        }
                         infoText += `\nTempo Real: ${tempoRealFormatado}`;
                     } else {
                         infoText += `\nTempo Real: N/A`;
                     }
-                    
+
                     infoText += `\nClassificação: ${item.classificacaoVelocidade || 'N/A'}`;
                 }
                 if (item.paginas) {
@@ -401,12 +630,12 @@
                 
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
-                editButton.textContent = '✏️ Alterar Status';
+                editButton.textContent = 'Alterar Status';
                 editButton.onclick = () => alterarStatus(index);
                 
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'delete-btn';
-                deleteButton.textContent = '🗑️ Apagar';
+                deleteButton.textContent = 'Apagar';
                 deleteButton.onclick = () => apagarItem(index);
                 
                 buttonsDiv.appendChild(editButton);
@@ -420,9 +649,9 @@
 
         function statusLabel(status) {
             return {
-                lido: 'Lido ✅',
-                emAndamento: 'Em Andamento 🔄',
-                naoLido: 'Não Lido ❌'
+                lido: 'Lido ',
+                emAndamento: 'Em Andamento ',
+                naoLido: 'Não Lido '
             }[status];
         }
 
@@ -442,6 +671,167 @@
             const naoLidos = lista.filter(i => i.status === 'naoLido').length;
             const percent = (v) => total ? `${((v / total) * 100).toFixed(1)}%` : '0%';
             return `${label}: Total ${total}, Lidos ${lidos} (${percent(lidos)}), Em Andamento ${andamento} (${percent(andamento)}), Não Lidos ${naoLidos} (${percent(naoLidos)})`;
+        }
+
+        function aplicarFiltros() {
+            const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
+            const filtroStatus = document.getElementById('filtroStatus').value;
+
+            itensFiltrados = biblioteca.filter(item => {
+                const nomeMatch = item.nome.toLowerCase().includes(filtroNome);
+                const statusMatch = !filtroStatus || item.status === filtroStatus;
+                return nomeMatch && statusMatch;
+            });
+
+            paginaAtual = 1;
+            renderPage();
+            atualizarPaginacao();
+        }
+
+        function renderPage() {
+            const lista = document.getElementById('listaBiblioteca');
+            lista.innerHTML = '';
+
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = inicio + itensPorPagina;
+            const itensDaPagina = itensFiltrados.slice(inicio, fim);
+
+            itensDaPagina.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `item-biblioteca item-${item.status}`;
+
+                const infoDiv = document.createElement('div');
+                let infoText = `${item.tipo === 'hq' ? 'HQ' : 'Livro'}: ${item.nome} — ${statusLabel(item.status)}`;
+                infoText += `\nAdicionado em: ${item.dataAdicionado}`;
+
+                if (item.dataInicio) {
+                    infoText += `\nIniciado em: ${item.dataInicio}`;
+                }
+                if (item.dataFim) {
+                    infoText += `\nFinalizado em: ${item.dataFim}`;
+
+                    // Calcular unidade de tempo baseada no tempo ideal
+                    const tempoPorPagina = item.tipo === 'hq' ? 20 : 50;
+                    const idealSeconds = item.paginas * tempoPorPagina;
+                    const idealHours = idealSeconds / 3600;
+                    const idealWeeks = idealHours / 3; // 3 hours/week
+                    const unit = getTimeUnit(idealWeeks);
+
+                    // Formatar tempo estimado
+                    let tempoEstimadoFormatado;
+                    if (unit === 'minutes') {
+                        const minutes = idealSeconds / 60;
+                        tempoEstimadoFormatado = `${minutes.toFixed(1)} min`;
+                    } else if (unit === 'weeks') {
+                        tempoEstimadoFormatado = `${idealWeeks.toFixed(1)} semanas`;
+                    } else if (unit === 'months') {
+                        const months = idealWeeks / 4;
+                        tempoEstimadoFormatado = `${months.toFixed(1)} meses`;
+                    } else { // quarters
+                        const quarters = idealWeeks / 12;
+                        tempoEstimadoFormatado = `${quarters.toFixed(1)} trimestres`;
+                    }
+                    infoText += `\nTempo Estimado: ${tempoEstimadoFormatado}`;
+
+                    // Formatar tempo real
+                    if (item.tempoReal !== null) {
+                        let tempoRealFormatado;
+                        if (unit === 'minutes') {
+                            const minutes = item.tempoReal / 60;
+                            tempoRealFormatado = `${minutes.toFixed(1)} min`;
+                        } else if (unit === 'weeks') {
+                            const weeks = item.tempoReal / (3600 * 7);
+                            tempoRealFormatado = `${weeks.toFixed(1)} semanas`;
+                        } else if (unit === 'months') {
+                            const months = item.tempoReal / (3600 * 7 * 4);
+                            tempoRealFormatado = `${months.toFixed(1)} meses`;
+                        } else { // quarters
+                            const quarters = item.tempoReal / (3600 * 7 * 12);
+                            tempoRealFormatado = `${quarters.toFixed(1)} trimestres`;
+                        }
+                        infoText += `\nTempo Real: ${tempoRealFormatado}`;
+                    } else {
+                        infoText += `\nTempo Real: N/A`;
+                    }
+
+                    infoText += `\nClassificação: ${item.classificacaoVelocidade || 'N/A'}`;
+                }
+                if (item.paginas) {
+                    infoText += `\nPáginas: ${item.paginas}`;
+                }
+
+                infoDiv.textContent = infoText;
+                infoDiv.style.whiteSpace = 'pre-line';
+
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'item-buttons';
+
+                const editButton = document.createElement('button');
+                editButton.className = 'edit-btn';
+                editButton.textContent = 'Alterar Status';
+                editButton.onclick = () => alterarStatus(biblioteca.indexOf(item));
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-btn';
+                deleteButton.textContent = 'Apagar';
+                deleteButton.onclick = () => apagarItem(biblioteca.indexOf(item));
+
+                buttonsDiv.appendChild(editButton);
+                buttonsDiv.appendChild(deleteButton);
+
+                div.appendChild(infoDiv);
+                div.appendChild(buttonsDiv);
+                lista.appendChild(div);
+            });
+        }
+
+        function atualizarPaginacao() {
+            const totalPaginas = Math.ceil(itensFiltrados.length / itensPorPagina);
+            document.getElementById('paginaAtual').textContent = paginaAtual;
+            document.getElementById('totalPaginas').textContent = totalPaginas;
+            document.getElementById('inputPagina').value = paginaAtual;
+        }
+
+        function paginaAnterior() {
+            if (paginaAtual > 1) {
+                paginaAtual--;
+                renderPage();
+                atualizarPaginacao();
+            }
+        }
+
+        function proximaPagina() {
+            const totalPaginas = Math.ceil(itensFiltrados.length / itensPorPagina);
+            if (paginaAtual < totalPaginas) {
+                paginaAtual++;
+                renderPage();
+                atualizarPaginacao();
+            }
+        }
+
+        function irParaPagina() {
+            const input = document.getElementById('inputPagina');
+            const pagina = parseInt(input.value);
+            const totalPaginas = Math.ceil(itensFiltrados.length / itensPorPagina);
+            if (pagina >= 1 && pagina <= totalPaginas) {
+                paginaAtual = pagina;
+                renderPage();
+                atualizarPaginacao();
+            } else {
+                input.value = paginaAtual;
+            }
+        }
+
+        function toggleResumo() {
+            const resumoDiv = document.getElementById('resumoStatus');
+            const btn = document.getElementById('btnToggleResumo');
+            if (resumoDiv.style.display === 'none' || resumoDiv.style.display === '') {
+                resumoDiv.style.display = 'block';
+                btn.textContent = 'Ocultar Resumo';
+            } else {
+                resumoDiv.style.display = 'none';
+                btn.textContent = 'Mostrar Resumo';
+            }
         }
     </script>
 </body>
