@@ -26,7 +26,7 @@ function initializeDashboard() {
 // Setup event listeners
 function setupEventListeners() {
   document.getElementById('adicionarBtn').addEventListener('click', handleSaveData);
-  
+
   // Real-time updates
   ['qtdHqs', 'hqsLidas', 'hqsEmAndamento', 'qtdLivros', 'livrosLidos', 'livrosEmAndamento'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateDisplay);
@@ -35,11 +35,11 @@ function setupEventListeners() {
   // Email buttons
   const enviarEmailBtn = document.getElementById('enviarEmailBtn');
   const enviarEmailBtn2 = document.getElementById('enviarEmailBtn2');
-  
+
   if (enviarEmailBtn) {
     enviarEmailBtn.addEventListener('click', handleSendEmail);
   }
-  
+
   if (enviarEmailBtn2) {
     enviarEmailBtn2.addEventListener('click', handleSendEmail);
   }
@@ -47,11 +47,11 @@ function setupEventListeners() {
   // Download buttons
   const downloadReportBtn = document.getElementById('downloadReportBtn');
   const downloadReportBtn2 = document.getElementById('downloadReportBtn2');
-  
+
   if (downloadReportBtn) {
     downloadReportBtn.addEventListener('click', handleDownloadReport);
   }
-  
+
   if (downloadReportBtn2) {
     downloadReportBtn2.addEventListener('click', handleDownloadReport);
   }
@@ -62,7 +62,7 @@ function calculateSmartValues() {
   const hqsTotal = parseInt(document.getElementById('qtdHqs').value) || 0;
   const hqsRead = parseInt(document.getElementById('hqsLidas').value) || 0;
   const hqsEmAndamento = parseInt(document.getElementById('hqsEmAndamento').value) || 0;
-  
+
   const livrosTotal = parseInt(document.getElementById('qtdLivros').value) || 0;
   const livrosRead = parseInt(document.getElementById('livrosLidos').value) || 0;
   const livrosEmAndamento = parseInt(document.getElementById('livrosEmAndamento').value) || 0;
@@ -107,10 +107,10 @@ function calculateSmartValues() {
 
 function handleSaveData() {
   console.log('handleSaveData called');
-  
+
   // Get smart calculated values
   const smartData = calculateSmartValues();
-  
+
   // Validate inputs
   if (!validateInputs(smartData)) {
     return;
@@ -119,7 +119,7 @@ function handleSaveData() {
   // Save data
   readingData = smartData;
   localStorage.setItem('readingData', JSON.stringify(readingData));
-  
+
   // Update display with confirmation
   updateDisplay();
   renderizarGraficos();
@@ -173,10 +173,302 @@ function showSuccessFeedback() {
   `;
   messageDiv.className = 'mensagem sucesso';
   messageDiv.style.display = 'block';
-  
+
+  // Check for victory condition
+  checkVictoryCondition();
+
   setTimeout(() => {
     messageDiv.style.display = 'none';
   }, 4000);
+}
+
+// Check if user has completed all reading (victory condition)
+function checkVictoryCondition() {
+  const hqsCompleted = readingData.hqs.total > 0 && readingData.hqs.naoLidas === 0 && readingData.hqs.emAndamento === 0;
+  const livrosCompleted = readingData.livros.total > 0 && readingData.livros.naoLidos === 0 && readingData.livros.emAndamento === 0;
+
+  if (hqsCompleted && livrosCompleted) {
+    showVictoryScreen();
+  }
+}
+
+// Show victory screen
+function showVictoryScreen() {
+  // Create victory overlay
+  const victoryOverlay = document.createElement('div');
+  victoryOverlay.id = 'victory-overlay';
+  victoryOverlay.innerHTML = `
+    <div class="victory-modal">
+      <div class="victory-content">
+        <div class="victory-header">
+          <span class="victory-icon">🏆</span>
+          <h2>PARABÉNS! VITÓRIA CONQUISTADA!</h2>
+        </div>
+        <div class="victory-body">
+          <p>🎉 Você completou a leitura de todos os seus HQs e Livros!</p>
+          <div class="victory-stats">
+            <div class="stat-item">
+              <span class="stat-number">${readingData.hqs.total}</span>
+              <span class="stat-label">HQs Concluídas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">${readingData.livros.total}</span>
+              <span class="stat-label">Livros Concluídos</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">${readingData.hqs.total + readingData.livros.total}</span>
+              <span class="stat-label">Total de Leituras</span>
+            </div>
+          </div>
+          <p class="victory-message">
+            Você é um verdadeiro mestre da leitura! 📚✨<br>
+            Continue explorando novos mundos através das páginas!
+          </p>
+        </div>
+        <div class="victory-actions">
+          <button class="victory-btn primary" onclick="closeVictoryScreen()">🎊 Continuar Celebrando</button>
+          <button class="victory-btn secondary" onclick="shareVictory()">📤 Compartilhar Vitória</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(victoryOverlay);
+
+  // Add CSS styles for victory screen
+  const style = document.createElement('style');
+  style.textContent = `
+    #victory-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .victory-modal {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.6s ease-out;
+      text-align: center;
+      color: white;
+    }
+
+    .victory-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .victory-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .victory-header h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .victory-body {
+      margin-bottom: 2rem;
+    }
+
+    .victory-body p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .victory-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 0.5rem;
+      min-width: 100px;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .victory-message {
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .victory-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .victory-btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .victory-btn.primary {
+      background: #ff6b6b;
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .victory-btn.primary:hover {
+      background: #ff5252;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    }
+
+    .victory-btn.secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .victory-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .victory-modal {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+
+      .victory-stats {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .victory-actions {
+        flex-direction: column;
+      }
+
+      .victory-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Play victory sound effect (optional)
+  playVictorySound();
+}
+
+// Close victory screen
+function closeVictoryScreen() {
+  const overlay = document.getElementById('victory-overlay');
+  if (overlay) {
+    overlay.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => {
+      document.body.removeChild(overlay);
+    }, 300);
+  }
+}
+
+// Share victory
+function shareVictory() {
+  const victoryText = `🏆 VITÓRIA CONQUISTADA! 📚\n\nCompletei a leitura de todos os meus HQs e Livros!\n\n📊 Estatísticas:\n• ${readingData.hqs.total} HQs concluídas\n• ${readingData.livros.total} Livros concluídos\n• Total: ${readingData.hqs.total + readingData.livros.total} leituras\n\nQuem também quer alcançar essa vitória? 📖✨`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Vitória na Leitura!',
+      text: victoryText
+    });
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(victoryText).then(() => {
+      showMessage('Texto de vitória copiado para compartilhar! 📋', 'sucesso');
+    });
+  }
+}
+
+// Play victory sound effect
+function playVictorySound() {
+  try {
+    // Create audio context for victory sound
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Victory melody notes (C4, E4, G4, C5)
+    const notes = [261.63, 329.63, 392.00, 523.25];
+    let noteIndex = 0;
+
+    function playNote() {
+      if (noteIndex < notes.length) {
+        oscillator.frequency.setValueAtTime(notes[noteIndex], audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+        noteIndex++;
+        setTimeout(playNote, 200);
+      } else {
+        oscillator.stop();
+      }
+    }
+
+    oscillator.start();
+    playNote();
+  } catch (error) {
+    console.log('Audio not supported, skipping victory sound');
+  }
 }
 
 // Show field error
@@ -185,7 +477,7 @@ function showFieldError(fieldId, message) {
   field.classList.add('error');
   field.style.borderColor = '#ef4444';
   field.style.backgroundColor = '#fee2e2';
-  
+
   // Create error message element
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-message';
@@ -193,7 +485,7 @@ function showFieldError(fieldId, message) {
   errorDiv.style.color = '#ef4444';
   errorDiv.style.fontSize = '0.875rem';
   errorDiv.style.marginTop = '0.25rem';
-  
+
   // Insert after the field
   field.parentNode.appendChild(errorDiv);
 }
@@ -206,7 +498,7 @@ function clearErrorStates() {
     field.classList.remove('error');
     field.style.borderColor = '';
     field.style.backgroundColor = '';
-    
+
     // Remove error messages
     const errorMessages = field.parentNode.querySelectorAll('.error-message');
     errorMessages.forEach(msg => msg.remove());
@@ -218,14 +510,14 @@ function loadSavedData() {
   const saved = localStorage.getItem('readingData');
   if (saved) {
     readingData = JSON.parse(saved);
-    
+
     document.getElementById('qtdHqs').value = readingData.hqs.total;
     document.getElementById('hqsLidas').value = readingData.hqs.read;
     document.getElementById('hqsEmAndamento').value = readingData.hqs.emAndamento || 0;
     document.getElementById('qtdLivros').value = readingData.livros.total;
     document.getElementById('livrosLidos').value = readingData.livros.read;
     document.getElementById('livrosEmAndamento').value = readingData.livros.emAndamento || 0;
-    
+
     updateDisplay();
     renderizarGraficos();
   }
@@ -298,18 +590,20 @@ function mostrarAba(abaId) {
   document.querySelectorAll('.aba').forEach(tab => {
     tab.classList.remove('ativa');
   });
-  
+
   // Remove active class from nav links
   document.querySelectorAll('.nav-links a').forEach(link => {
     link.classList.remove('ativa');
   });
-  
+
   // Show selected tab
   document.getElementById(abaId).classList.add('ativa');
-  
+
   // Add active class to clicked link
-  event.target.classList.add('ativa');
-  
+  if (event && event.target) {
+    event.target.classList.add('ativa');
+  }
+
   // Render charts if graficos tab is selected
   if (abaId === 'graficos') {
     setTimeout(renderizarGraficos, 100);
@@ -328,7 +622,7 @@ function renderizarGraficos() {
   charts = {};
 
   const { hqs, livros } = readingData;
-  
+
   // Only render if there's data
   if (hqs.total === 0 && livros.total === 0) {
     console.log('No data to render charts');
@@ -448,7 +742,7 @@ function renderizarGraficos() {
   if (ctx5) {
     const dpHqs = calculateStandardDeviation([hqs.read, hqs.total - hqs.read]);
     const dpLivros = calculateStandardDeviation([livros.read, livros.total - livros.read]);
-    
+
     charts.dp = new Chart(ctx5, {
       type: 'radar',
       data: {
@@ -505,7 +799,7 @@ function showMessage(text, type = 'sucesso') {
   messageDiv.textContent = text;
   messageDiv.className = `mensagem ${type}`;
   messageDiv.style.display = 'block';
-  
+
   setTimeout(() => {
     messageDiv.style.display = 'none';
   }, 3000);
@@ -540,63 +834,66 @@ function handleSendEmail() {
 }
 
 // Handle report download
-function handleDownloadReport() {
+async function handleDownloadReport() {
   try {
-    // Check if there's data to download
+    // Ativa a aba de gráficos para garantir que os canvases estejam visíveis e renderizados
+    mostrarAba('graficos');
+    await new Promise(resolve => setTimeout(resolve, 400)); // Aguarda renderização
+
+    renderizarGraficos();
+    await new Promise(resolve => setTimeout(resolve, 200)); // Aguarda renderização
+
     const savedData = localStorage.getItem('readingData');
     if (!savedData) {
       showMessage('Nenhum dado encontrado. Por favor, salve seus dados primeiro.', 'erro');
       return;
     }
-
     const data = JSON.parse(savedData);
-    if ((!data.hqs || data.hqs.total === 0) && (!data.livros || data.livros.total === 0)) {
-      showMessage('Nenhum dado de leitura encontrado. Adicione alguns dados primeiro.', 'erro');
-      return;
+
+    // IDs dos canvases dos gráficos
+    const chartIds = [
+      'graficoPercentHqs',
+      'graficoPercentLivros',
+      'graficoProporcao',
+      'graficoMedia',
+      'graficoDP',
+      'graficoGeral'
+    ];
+    const chartImages = {};
+    for (const id of chartIds) {
+      const canvas = document.getElementById(id);
+      if (canvas) {
+        chartImages[id] = canvas.toDataURL('image/png');
+      }
     }
 
-    // Create HTML report content
-    const reportContent = createHTMLReportContent(data);
-    
-    // Create and download file with improved error handling
+    // Gera o relatório HTML com as imagens dos gráficos
+    const reportContent = await createHTMLReportContentWithCharts(data, chartImages);
+
     const blob = new Blob([reportContent], { type: 'text/html;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `dashboard-leitura-${new Date().toISOString().split('T')[0]}.html`;
     a.style.display = 'none';
-    
-    // Add to document and trigger click
     document.body.appendChild(a);
-    
-    // Use setTimeout to ensure the UI remains responsive
+
     setTimeout(() => {
       try {
         a.click();
-        
-        // Clean up after a short delay to prevent UI issues
         setTimeout(() => {
-          if (document.body.contains(a)) {
-            document.body.removeChild(a);
-          }
+          if (document.body.contains(a)) document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
         }, 100);
-        
         showMessage('Dashboard baixado com sucesso! 📥', 'sucesso');
       } catch (error) {
-        console.error('Erro ao iniciar download:', error);
-        showMessage('Erro ao baixar dashboard. Por favor, tente novamente.', 'erro');
-        
-        // Clean up on error
-        if (document.body.contains(a)) {
-          document.body.removeChild(a);
-        }
+        if (document.body.contains(a)) document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+        showMessage('Erro ao baixar dashboard. Por favor, tente novamente.', 'erro');
       }
     }, 100);
-    
+
   } catch (error) {
-    console.error('Erro ao baixar dashboard:', error);
     showMessage('Erro ao baixar dashboard. Por favor, tente novamente.', 'erro');
   }
 }
@@ -605,29 +902,29 @@ function handleDownloadReport() {
 function createHTMLReportContent(data) {
   const hqs = data.hqs || { total: 0, read: 0, emAndamento: 0, naoLidas: 0 };
   const livros = data.livros || { total: 0, read: 0, emAndamento: 0, naoLidos: 0 };
-  
+
   // Calculate age and birthday countdown
   const birthdayInfo = calculateAgeAndBirthdayCountdown('2006-11-12');
-  
+
   // Get library data
   const bibliotecaData = JSON.parse(localStorage.getItem('minhaBiblioteca') || '[]');
   const hqsBiblioteca = bibliotecaData.filter(item => item.tipo === 'hq');
   const livrosBiblioteca = bibliotecaData.filter(item => item.tipo === 'livro');
-  
+
   // Get cart data
   const carrinhoData = JSON.parse(localStorage.getItem('carrinhoCompras') || '[]');
   const itensComprados = carrinhoData.filter(item => item.status === 'comprado');
   const itensAComprar = carrinhoData.filter(item => item.status === 'a-comprar');
-  
+
   // Calculate cart statistics
   const totalItensCarrinho = carrinhoData.length;
   const porcentagemComprados = totalItensCarrinho > 0 ? Math.round((itensComprados.length / totalItensCarrinho) * 100) : 0;
   const porcentagemAComprar = totalItensCarrinho > 0 ? Math.round((itensAComprar.length / totalItensCarrinho) * 100) : 0;
-  
+
   // Calculate average time for purchased items
   let tempoMedioTotalMs = 0;
   let itensComTempo = 0;
-  
+
   itensComprados.forEach(item => {
     if (item.dataAdicionado && item.dataComprado) {
       const dataAdicionado = new Date(item.dataAdicionado);
@@ -636,13 +933,13 @@ function createHTMLReportContent(data) {
       itensComTempo++;
     }
   });
-  
+
   const tempoMedioMs = itensComTempo > 0 ? tempoMedioTotalMs / itensComTempo : 0;
   const dias = Math.floor(tempoMedioMs / (1000 * 60 * 60 * 24));
   const horas = Math.floor((tempoMedioMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutos = Math.floor((tempoMedioMs % (1000 * 60 * 60)) / (1000 * 60));
   const segundos = Math.floor((tempoMedioMs % (1000 * 60)) / 1000);
-  
+
   // Format current date and time
   const dataHoraAtual = new Date().toLocaleString('pt-BR', {
     day: '2-digit',
@@ -660,6 +957,10 @@ function createHTMLReportContent(data) {
   const percentLivrosLidos = livros.total > 0 ? Math.round((livros.read / livros.total) * 100) : 0;
   const percentLivrosEmAndamento = livros.total > 0 ? Math.round((livros.emAndamento / livros.total) * 100) : 0;
   const percentLivrosNaoLidos = livros.total > 0 ? Math.round((livros.naoLidos / livros.total) * 100) : 0;
+
+  // Calculate standard deviations
+  const dpHqs = calculateStandardDeviation([hqs.read, hqs.emAndamento || 0, hqs.naoLidas || 0]);
+  const dpLivros = calculateStandardDeviation([livros.read, livros.emAndamento || 0, livros.naoLidos || 0]);
 
   // Generate complete HTML dashboard
   return `<!DOCTYPE html>
@@ -1171,8 +1472,8 @@ function createHTMLReportContent(data) {
                         <tr>
                             <td>${item.nome}</td>
                             <td><span class="badge ${item.status === 'comprado' ? 'badge-success' : 'badge-warning'}">${item.status === 'comprado' ? 'Comprado' : 'A Comprar'}</span></td>
-                            <td>${new Date(item.dataAdicionado).toLocaleDateString('pt-BR')}</td>
-                            <td>${item.dataComprado ? new Date(item.dataComprado).toLocaleDateString('pt-BR') : '-'}</td>
+                            <td>${new Date(item.dataAdicionado).toLocaleString('pt-BR')}</td>
+                            <td>${item.dataComprado ? new Date(item.dataComprado).toLocaleString('pt-BR') : '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -1196,6 +1497,330 @@ function createHTMLReportContent(data) {
     </div>
 </body>
 </html>`;
+}
+async function createHTMLReportContentWithCharts(data, chartImages) {
+  // Estatísticas do carrinho
+  const carrinhoData = JSON.parse(localStorage.getItem('carrinhoCompras') || '[]');
+  const itensComprados = carrinhoData.filter(item => item.status === 'comprado');
+  const itensAComprar = carrinhoData.filter(item => item.status === 'a-comprar');
+  const totalItensCarrinho = carrinhoData.length;
+  const porcentagemComprados = totalItensCarrinho > 0 ? Math.round((itensComprados.length / totalItensCarrinho) * 100) : 0;
+  const porcentagemAComprar = totalItensCarrinho > 0 ? Math.round((itensAComprar.length / totalItensCarrinho) * 100) : 0;
+  let tempoMedioTotalMs = 0, itensComTempo = 0;
+  itensComprados.forEach(item => {
+    if (item.dataAdicionado && item.dataComprado) {
+      tempoMedioTotalMs += (new Date(item.dataComprado) - new Date(item.dataAdicionado));
+      itensComTempo++;
+    }
+  });
+  const tempoMedioMs = itensComTempo > 0 ? tempoMedioTotalMs / itensComTempo : 0;
+  const dias = Math.floor(tempoMedioMs / (1000 * 60 * 60 * 24));
+  const horas = Math.floor((tempoMedioMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutos = Math.floor((tempoMedioMs % (1000 * 60 * 60)) / (1000 * 60));
+  const segundos = Math.floor((tempoMedioMs % (1000 * 60)) / 1000);
+
+  const birthdayInfo = calculateAgeAndBirthdayCountdown('2006-11-12');
+  const dataHoraAtual = new Date().toLocaleString('pt-BR');
+  const progress = birthdayInfo.progress || 0;
+
+  // Estatísticas
+  const hqs = data.hqs || { total: 0, read: 0, emAndamento: 0, naoLidas: 0 };
+  const livros = data.livros || { total: 0, read: 0, emAndamento: 0, naoLidos: 0 };
+  const percentHqsLidas = hqs.total > 0 ? Math.round((hqs.read / hqs.total) * 100) : 0;
+  const percentLivrosLidos = livros.total > 0 ? Math.round((livros.read / livros.total) * 100) : 0;
+
+  // Biblioteca
+  const bibliotecaData = JSON.parse(localStorage.getItem('minhaBiblioteca') || '[]');
+  const hqsBiblioteca = bibliotecaData.filter(item => item.tipo === 'hq');
+  const livrosBiblioteca = bibliotecaData.filter(item => item.tipo === 'livro');
+
+  // Resumo HQs
+  const totalHqsBib = hqsBiblioteca.length;
+  const lidosHqsBib = hqsBiblioteca.filter(i => i.status === 'lido').length;
+  const emAndamentoHqsBib = hqsBiblioteca.filter(i => i.status === 'emAndamento').length;
+  const naoLidosHqsBib = totalHqsBib - lidosHqsBib - emAndamentoHqsBib;
+  const percLidosHqsBib = totalHqsBib > 0 ? ((lidosHqsBib / totalHqsBib) * 100).toFixed(1) : '0.0';
+  const percEmAndamentoHqsBib = totalHqsBib > 0 ? ((emAndamentoHqsBib / totalHqsBib) * 100).toFixed(1) : '0.0';
+  const percNaoLidosHqsBib = totalHqsBib > 0 ? ((naoLidosHqsBib / totalHqsBib) * 100).toFixed(1) : '0.0';
+
+  // Resumo Livros
+  const totalLivrosBib = livrosBiblioteca.length;
+  const lidosLivrosBib = livrosBiblioteca.filter(i => i.status === 'lido').length;
+  const emAndamentoLivrosBib = livrosBiblioteca.filter(i => i.status === 'emAndamento').length;
+  const naoLidosLivrosBib = totalLivrosBib - lidosLivrosBib - emAndamentoLivrosBib;
+  const percLidosLivrosBib = totalLivrosBib > 0 ? ((lidosLivrosBib / totalLivrosBib) * 100).toFixed(1) : '0.0';
+  const percEmAndamentoLivrosBib = totalLivrosBib > 0 ? ((emAndamentoLivrosBib / totalLivrosBib) * 100).toFixed(1) : '0.0';
+  const percNaoLidosLivrosBib = totalLivrosBib > 0 ? ((naoLidosLivrosBib / totalLivrosBib) * 100).toFixed(1) : '0.0';
+
+  // Generate HTML content
+  return `
+  <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard de Leitura</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 12px;
+      font-size: 11px;
+      max-width: 21cm;
+    }
+    h1 { color: #2563eb; margin: 0 0 8px 0; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: #f8fafc;
+      border-radius: 10px;
+      box-shadow: 0 1px 2px #0001;
+      padding: 12px 10px;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-title {
+      font-size: 1.1em;
+      color: #2563eb;
+      font-weight: bold;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .card-content {
+      font-size: 1em;
+      color: #222;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+    .card-label {
+      color: #6b7280;
+      font-size: 0.93em;
+      margin-bottom: 2px;
+    }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 7px; justify-content: center; margin-bottom: 10px;
+    }
+    .chart-block {
+      background: #f8fafc; border-radius: 8px; box-shadow: 0 1px 2px #0001;
+      padding: 4px 2px 2px 2px; text-align: center;
+    }
+    .chart-block h3 { font-size: 0.93rem; margin-bottom: 2px; color: #6b7280; }
+    img { max-width: 100%; height: auto; border-radius: 5px; background: #fff; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 8px 0; }
+    .progress-aniversario-container {
+      margin: 8px 0 0 0; width: 100%; max-width: 350px;
+    }
+    .progress-aniversario-label { font-size: 0.95em; color: #6b7280; margin-bottom: 2px; }
+    .progress-aniversario-bar {
+      background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden; width: 100%;
+    }
+    .progress-aniversario-fill {
+      background: linear-gradient(90deg, #6366f1, #10b981);
+      height: 100%; border-radius: 5px; transition: width 0.3s;
+    }
+    .progress-aniversario-text { font-size: 0.93em; color: #374151; text-align: right; margin-top: 1px; }
+    .badge {
+      background: #f1f5f9; color: #2563eb; border-radius: 16px;
+      padding: 3px 10px; font-size: 0.93em; font-weight: 600;
+      display: inline-block; margin-right: 5px; margin-bottom: 5px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 12px;
+      padding-top: 7px;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+      font-size: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 11px;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: #374151;
+    }
+    .print-btn-container {
+      text-align: center;
+      margin: 18px 0 0 0;
+    }
+    .print-btn {
+      background: #2563eb;
+      color: white;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .print-btn:hover {
+      background: #1741a6;
+    }
+    @media print {
+      .print-btn-container, .print-btn { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 DASHBOARD DE LEITURA</h1>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-title">Relatório Completo</div>
+      <div class="card-label">${dataHoraAtual}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">👤 Idade</div>
+      <div class="card-label">${birthdayInfo.age} anos</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎂 Próximo aniversário</div>
+      <div class="card-label">${birthdayInfo.countdown.months} meses, ${birthdayInfo.countdown.days} dias</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Gerado em</div>
+      <div class="card-label">${dataHoraAtual}</div>
+    </div>
+  </div>
+  <div class="progress-aniversario-container">
+    <div class="progress-aniversario-label">Progresso até o aniversário</div>
+    <div class="progress-aniversario-bar">
+      <div class="progress-aniversario-fill" style="width:${progress}%"></div>
+    </div>
+    <div class="progress-aniversario-text">${progress}% do ano percorrido</div>
+  </div>
+  <hr>
+  <div class="charts">
+    <div class="chart-block"><h3>HQs Lidas</h3><img src="${chartImages['graficoPercentHqs'] || ''}"></div>
+    <div class="chart-block"><h3>Livros Lidos</h3><img src="${chartImages['graficoPercentLivros'] || ''}"></div>
+    <div class="chart-block"><h3>Proporção</h3><img src="${chartImages['graficoProporcao'] || ''}"></div>
+    <div class="chart-block"><h3>Média</h3><img src="${chartImages['graficoMedia'] || ''}"></div>
+    <div class="chart-block"><h3>Desvio Padrão</h3><img src="${chartImages['graficoDP'] || ''}"></div>
+    <div class="chart-block"><h3>Resumo Geral</h3><img src="${chartImages['graficoGeral'] || ''}"></div>
+  </div>
+  <hr>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-title">📚 HQs</div>
+      <div class="card-content">${hqs.total} TOTAL</div>
+      <div class="card-label">Lidas: ${hqs.read}</div>
+      <div class="card-label">Em andamento: ${hqs.emAndamento}</div>
+      <div class="card-label">Não lidas: ${hqs.naoLidas}</div>
+      <div class="card-label">${percentHqsLidas}% concluídas</div>
+      <div class="card-label">Média: ${(hqs.total > 0 ? (hqs.read / hqs.total).toFixed(2) : 0)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📚 Livros</div>
+      <div class="card-content">${livros.total} TOTAL</div>
+      <div class="card-label">Lidos: ${livros.read}</div>
+      <div class="card-label">Em andamento: ${livros.emAndamento}</div>
+      <div class="card-label">Não lidos: ${livros.naoLidos}</div>
+      <div class="card-label">${percentLivrosLidos}% concluídos</div>
+      <div class="card-label">Média: ${(livros.total > 0 ? (livros.read / livros.total).toFixed(2) : 0)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Resumo Geral</div>
+      <div class="card-label">Total de itens: ${hqs.total + livros.total}</div>
+      <div class="card-label">Itens concluídos: ${hqs.read + livros.read}</div>
+      <div class="card-label">Porcentagem total: ${hqs.total + livros.total > 0 ? Math.round(((hqs.read + livros.read) / (hqs.total + livros.total)) * 100) : 0}%</div>
+      <div class="card-label">Itens em andamento: ${(hqs.emAndamento || 0) + (livros.emAndamento || 0)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Desempenho</div>
+      <div class="card-label">Desvio padrão HQs: ${calculateStandardDeviation([hqs.read, hqs.emAndamento || 0, hqs.naoLidas || 0]).toFixed(2)}</div>
+      <div class="card-label">Desvio padrão Livros: ${calculateStandardDeviation([livros.read, livros.emAndamento || 0, livros.naoLidos || 0]).toFixed(2)}</div>
+      <div class="card-label">Taxa de conclusão HQs: ${percentHqsLidas}%</div>
+      <div class="card-label">Taxa de conclusão Livros: ${percentLivrosLidos}%</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Estatísticas do Carrinho</div>
+      <div class="card-label">${totalItensCarrinho} itens no carrinho</div>
+      <div class="card-label">✅ Itens Comprados: ${itensComprados.length} - ${porcentagemComprados}%</div>
+      <div class="card-label">🛒 Itens a Comprar: ${itensAComprar.length} - ${porcentagemAComprar}%</div>
+      <div class="card-label">⏱️ Tempo Médio: ${dias}d ${horas}h ${minutos}m ${segundos}s</div>
+    </div>
+  </div>
+  <hr>
+  <div class="cards-grid">
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-title">📖 BIBLIOTECA - ${bibliotecaData.length} ITENS</div>
+      <div style="width:100%">
+        <div style="font-weight:bold;margin-bottom:4px;">📚 HQs NA BIBLIOTECA (${hqsBiblioteca.length})</div>
+        ${hqsBiblioteca.length > 0 ? `
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Status</th>
+              <th>Adicionado em</th>
+              <th>Finalizado em</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${hqsBiblioteca.map(item => `
+              <tr>
+                <td>${item.nome}</td>
+                <td>${formatStatus(item.status)}</td>
+                <td>${new Date(item.dataAdicionado).toLocaleDateString('pt-BR')}</td>
+                <td>${item.dataFim ? new Date(item.dataFim).toLocaleDateString('pt-BR') : '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ` : '<div style="color:#888;">Nenhuma HQ na biblioteca.</div>'}
+        <div style="font-weight:bold;margin:8px 0 4px 0;">📕 LIVROS NA BIBLIOTECA (${livrosBiblioteca.length})</div>
+        ${livrosBiblioteca.length > 0 ? `
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Status</th>
+              <th>Adicionado em</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${livrosBiblioteca.map(item => `
+              <tr>
+                <td>${item.nome}</td>
+                <td>${formatStatus(item.status)}</td>
+                <td>${new Date(item.dataAdicionado).toLocaleDateString('pt-BR')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ` : '<div style="color:#888;">Nenhum livro na biblioteca.</div>'}
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <p>📄 Dashboard gerado automaticamente em ${dataHoraAtual}</p>
+    <p>✨ Histórico de HQs Simplificado - Todos os direitos reservados</p>
+  </div>
+  <div class="print-btn-container no-print">
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir Dashboard</button>
+  </div>
+</body>
+</html>
+  `;
+}
 
 // Calculate age and birthday countdown - CORRIGIDA
 function calculateAgeAndBirthdayCountdown(birthDate) {
@@ -1256,6 +1881,7 @@ function calculateAgeAndBirthdayCountdown(birthDate) {
     },
     progress: Math.max(0, Math.min(100, progress.toFixed(2)))
   };
+}
 
 // Create enhanced copy content with age and birthday info
 function createEnhancedCopyContent(data) {
@@ -1467,7 +2093,7 @@ function generateCompleteCopyContent(data) {
     if (item.paginas) {
       content += `Páginas: ${item.paginas}\n`;
     }
-    content += `\n`;
+       content += `\n`;
   });
   
   // Livros da biblioteca
@@ -1573,8 +2199,14 @@ function generateCompleteCopyContent(data) {
 function formatStatus(status) {
   const statusMap = {
     'lido': 'Lido',
+    'lidas': 'Lidas',
     'emAndamento': 'Em Andamento',
-    'naoLido': 'Não Lido'
+    'naoLido': 'Não Lido',
+    'naoLidas': 'Não Lidas',
+    'naoLidos': 'Não Lidos',
+    'lidos': 'Lidos',
+    'a-comprar': 'A Comprar',
+    'comprado': 'Comprado'
   };
   return statusMap[status] || status;
 }
@@ -1617,6 +2249,4 @@ function identificarColecoes(carrinhoData) {
   }
   
   return colecoes;
-}
-}
 }
