@@ -1,36 +1,22 @@
-# 📥 Correção e Aprimoramento do Relatório de Download
+# TODO - Melhorias no Carrinho
 
-## ✅ Tarefas Concluídas
-- [x] Análise dos arquivos existentes
-- [x] Criação do plano de implementação
-- [x] Aprovação do plano pelo usuário
-- [x] Atualizar script.js - createHTMLReportContent()
-- [x] Adicionar gráficos ao relatório
-- [x] Incluir estatísticas completas
-- [x] Adicionar gráfico de progresso de idade
-- [x] Melhorar layout e responsividade
-- [x] Atualizar style.css com regras de impressão
-- [x] Melhorar feedback ao usuário
+## ✅ Concluído
+- [x] Redimensionar cards do carrinho para melhor aproveitamento em móveis
+- [x] Compactar tipografia nos cards
+- [x] Ajustar botões de filtro (select e input date) com sombreamento dinâmico e animações hover
+- [x] Melhorar botões dos cards (.btn-small.btn-edit, .btn-small.btn-delete) com ícones temáticos
+- [x] Adicionar media query para reduzir padding em móveis
 
-## 🔄 Em Andamento
-- [ ] Testar funcionalidade completa
-- [ ] Validar layout de impressão
-- [ ] Verificar responsividade
+## 📋 Próximos Passos
+- [ ] Testar as mudanças no navegador para verificar se tudo está funcionando corretamente
+- [ ] Verificar se há erros de CSS restantes (linha 1273)
+- [ ] Ajustar qualquer inconsistência visual se necessário
 
-## 📋 Próximas Tarefas
-- [ ] Testar download do relatório completo
-- [ ] Verificar se todos os gráficos estão incluídos
-- [ ] Validar estatísticas de HQs e Livros
-- [ ] Confirmar gráfico de progresso de idade
-- [ ] Testar layout de impressão
-- [ ] Verificar feedback ao usuário
-
-## 🎯 Requisitos Obrigatórios Implementados
-- [x] Gráficos da aba "Gráficos" no relatório
-- [x] Estatísticas de HQs (Total, Lidas, Não Lidas, Em Andamento, %, Média, Desvio Padrão)
-- [x] Estatísticas de Livros (mesmas métricas)
-- [x] Estatísticas do Carrinho (itens comprados, a comprar, tempo médio)
-- [x] Informação de Idade com gráfico de progresso
-- [x] Layout compatível para impressão
-- [x] Conteúdo renderizado de forma limpa e organizada
-- [x] Feedback ao usuário após download
+## 🔧 Detalhes Técnicos
+- Arquivo modificado: `style.css`
+- Estilos adicionados:
+  - `.filters-grid` e `.filter-group` para filtros
+  - `.search-box` para caixa de busca
+  - `.btn-small.btn-edit` e `.btn-small.btn-delete` para botões dos cards
+  - Media query para responsividade em móveis
+- Melhorias visuais: sombreamento dinâmico, animações hover, tipografia compacta

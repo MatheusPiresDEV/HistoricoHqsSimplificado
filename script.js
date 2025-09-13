@@ -15,12 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeDashboard();
   loadSavedData();
   setupEventListeners();
+  iniciarAnimacoesGSAP();
 });
 
 // Initialize dashboard components
 function initializeDashboard() {
   console.log('🚀 Dashboard initialized');
   updateDisplay();
+  iniciarAnimacoesGSAP();
 }
 
 // Setup event listeners
@@ -2250,3 +2252,378 @@ function identificarColecoes(carrinhoData) {
   
   return colecoes;
 }
+
+// ==========================================
+// GSAP ANIMATIONS - THRASH METAL THEME
+// ==========================================
+
+function iniciarAnimacoesGSAP() {
+  // Check if GSAP is loaded
+  if (typeof gsap === 'undefined') {
+    console.warn('GSAP não está carregado. Pulando animações.');
+    return;
+  }
+
+  console.log('🚀 Inicializando animações GSAP - Thrash Metal Edition');
+
+  // Register GSAP plugins if available
+  if (gsap.registerPlugin) {
+    // Register ScrollTrigger if available
+    if (typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+  }
+
+  // 1. Page Load Animation - Metal Entrance
+  gsap.set('.header', { y: -100, opacity: 0 });
+  gsap.set('.container', { scale: 0.8, opacity: 0 });
+  gsap.set('.stat-card', { y: 50, opacity: 0 });
+  gsap.set('.form-section', { x: -100, opacity: 0 });
+
+  // Animate header entrance with metal sound effect
+  gsap.to('.header', {
+    y: 0,
+    opacity: 1,
+    duration: 1.2,
+    ease: 'power3.out',
+    onComplete: () => {
+      // Add electric spark effect to header
+      createElectricSparks('.header h1');
+    }
+  });
+
+  // Animate main container with scale effect
+  gsap.to('.container', {
+    scale: 1,
+    opacity: 1,
+    duration: 1.5,
+    delay: 0.3,
+    ease: 'back.out(1.7)'
+  });
+
+  // Animate form section sliding in
+  gsap.to('.form-section', {
+    x: 0,
+    opacity: 1,
+    duration: 1,
+    delay: 0.6,
+    ease: 'power2.out'
+  });
+
+  // Animate stat cards with staggered entrance
+  gsap.to('.stat-card', {
+    y: 0,
+    opacity: 1,
+    duration: 0.8,
+    delay: 0.9,
+    stagger: 0.2,
+    ease: 'power2.out',
+    onComplete: () => {
+      // Add hover animations to stat cards
+      addCardHoverAnimations();
+    }
+  });
+
+  // 2. Tab Switching Animations
+  const originalMostrarAba = window.mostrarAba;
+  window.mostrarAba = function(abaId) {
+    // Hide current tab with metal transition
+    const currentTab = document.querySelector('.aba.ativa');
+    if (currentTab) {
+      gsap.to(currentTab, {
+        scale: 0.9,
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => {
+          // Call original function
+          originalMostrarAba(abaId);
+
+          // Show new tab with metal entrance
+          const newTab = document.getElementById(abaId);
+          gsap.fromTo(newTab,
+            { scale: 0.8, opacity: 0, y: 30 },
+            {
+              scale: 1,
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              ease: 'back.out(1.7)',
+              onComplete: () => {
+                // Add electric sparks to new tab
+                createElectricSparks(`#${abaId} h2`);
+              }
+            }
+          );
+        }
+      });
+    } else {
+      originalMostrarAba(abaId);
+    }
+  };
+
+  // 3. Button Hover Animations with Sparks
+  addButtonSparks();
+
+  // 4. Progress Bar Animations
+  animateProgressBars();
+
+  // 5. Chart Loading Animations
+  addChartAnimations();
+
+  // 6. Loading Effects with Riffs
+  addLoadingEffects();
+
+  // 7. Timeline Animation for Reading Progress
+  createReadingTimeline();
+
+  console.log('✅ Animações GSAP inicializadas com sucesso!');
+}
+
+// Create electric sparks effect
+function createElectricSparks(selector) {
+  const element = document.querySelector(selector);
+  if (!element) return;
+
+  // Create spark container
+  const sparkContainer = document.createElement('div');
+  sparkContainer.className = 'electric-sparks';
+  sparkContainer.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  `;
+
+  // Create multiple sparks
+  for (let i = 0; i < 8; i++) {
+    const spark = document.createElement('div');
+    spark.style.cssText = `
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #ff0000;
+      border-radius: 50%;
+      box-shadow: 0 0 4px #ff0000;
+    `;
+
+    sparkContainer.appendChild(spark);
+
+    // Animate spark
+    gsap.set(spark, {
+      x: Math.random() * 100 + '%',
+      y: Math.random() * 100 + '%',
+      scale: 0
+    });
+
+    gsap.to(spark, {
+      scale: Math.random() * 3 + 1,
+      opacity: 0,
+      duration: 0.8 + Math.random() * 0.4,
+      delay: Math.random() * 0.5,
+      ease: 'power2.out',
+      onComplete: () => spark.remove()
+    });
+  }
+
+  element.style.position = 'relative';
+  element.appendChild(sparkContainer);
+
+  // Remove container after animation
+  setTimeout(() => {
+    if (sparkContainer.parentNode) {
+      sparkContainer.remove();
+    }
+  }, 1500);
+}
+
+// Add hover animations to stat cards
+function addCardHoverAnimations() {
+  const cards = document.querySelectorAll('.stat-card');
+
+  cards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      gsap.to(card, {
+        scale: 1.05,
+        y: -10,
+        duration: 0.3,
+        ease: 'power2.out',
+        boxShadow: '0 20px 40px rgba(255, 0, 0, 0.3)'
+      });
+
+      // Add electric border effect
+      gsap.to(card, {
+        borderColor: '#ff0000',
+        duration: 0.3
+      });
+    });
+
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, {
+        scale: 1,
+        y: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        boxShadow: '0 0 20px rgba(255, 0, 0, 0.7)'
+      });
+
+      // Reset border color
+      gsap.to(card, {
+        borderColor: '#ff0000',
+        duration: 0.3
+      });
+    });
+  });
+}
+
+// Add button sparks on hover
+function addButtonSparks() {
+  const buttons = document.querySelectorAll('.btn-primary, .btn-email, .btn-download');
+
+  buttons.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+      // Create spark effect
+      createElectricSparks(button);
+
+      // Button scale animation
+      gsap.to(button, {
+        scale: 1.05,
+        duration: 0.2,
+        ease: 'power2.out'
+      });
+    });
+
+    button.addEventListener('mouseleave', () => {
+      gsap.to(button, {
+        scale: 1,
+        duration: 0.2,
+        ease: 'power2.out'
+      });
+    });
+
+    // Click animation
+    button.addEventListener('click', () => {
+      gsap.to(button, {
+        scale: 0.95,
+        duration: 0.1,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.inOut'
+      });
+    });
+  });
+}
+
+// Animate progress bars
+function animateProgressBars() {
+  const progressBars = document.querySelectorAll('.progress-fill');
+
+  progressBars.forEach(bar => {
+    const targetWidth = bar.style.width;
+
+    gsap.set(bar, { width: 0 });
+
+    gsap.to(bar, {
+      width: targetWidth,
+      duration: 2,
+      delay: 1.5,
+      ease: 'power2.out'
+    });
+  });
+}
+
+// Add chart loading animations
+function addChartAnimations() {
+  // This will be called when charts are rendered
+  const originalRenderizarGraficos = window.renderizarGraficos;
+  window.renderizarGraficos = function() {
+    originalRenderizarGraficos();
+
+    // Animate chart containers
+    const chartContainers = document.querySelectorAll('.chart-container');
+    gsap.fromTo(chartContainers,
+      { scale: 0.8, opacity: 0, y: 30 },
+      {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'back.out(1.7)'
+      }
+    );
+  };
+}
+
+// Add loading effects with riffs
+function addLoadingEffects() {
+  // Add loading animation to buttons when clicked
+  const buttons = document.querySelectorAll('.btn-primary, .btn-email, .btn-download');
+
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      const originalText = this.innerHTML;
+
+      // Add loading state
+      this.innerHTML = '⏳ Carregando...';
+      this.disabled = true;
+
+      // Simulate loading (remove after actual action completes)
+      setTimeout(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      }, 2000);
+    });
+  });
+}
+
+// Create reading timeline animation
+function createReadingTimeline() {
+  // Create a timeline for reading progress visualization
+  const timeline = gsap.timeline({ paused: true });
+
+  // This would be used for more complex animations
+  // For now, just animate the age progress bar
+  const progressBar = document.getElementById('progressBar');
+  if (progressBar) {
+    timeline.to(progressBar, {
+      width: progressBar.style.width,
+      duration: 3,
+      ease: 'power2.out'
+    });
+  }
+
+  // Play timeline after page load
+  setTimeout(() => {
+    timeline.play();
+  }, 2000);
+}
+
+// Add scroll animations if ScrollTrigger is available
+function addScrollAnimations() {
+  if (typeof ScrollTrigger === 'undefined') return;
+
+  // Animate sections on scroll
+  gsap.utils.toArray('.section').forEach(section => {
+    gsap.fromTo(section,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 80%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse'
+        }
+      }
+    );
+  });
+}
+
+// Initialize scroll animations
+addScrollAnimations();
